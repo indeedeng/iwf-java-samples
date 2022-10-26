@@ -28,7 +28,7 @@ public class BasicTest {
         final Integer input = new Integer(0);
         client.StartWorkflow(BasicWorkflow.class, BasicWorkflowS1.StateId, input, wfId, startOptions);
         // wait for workflow to finish
-        final Integer output = client.GetSingleWorkflowStateOutputWithLongWait(Integer.class, wfId);
+        final Integer output = client.GetSimpleWorkflowResultWithWait(Integer.class, wfId);
         Assertions.assertEquals(input + 2, output);
     }
 }
