@@ -10,6 +10,7 @@ public class Worker {
     ExecutorService executor = Executors.newSingleThreadExecutor();
 
     public void start() {
+        System.getProperties().put( "server.port", 8181 );  //8181 port is set here
         executor.submit(() -> {
             SpringApplication.run(SpringMainApplication.class);
         });
