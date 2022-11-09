@@ -30,7 +30,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-test'
     implementation "javax.validation:validation-api:2.0.1.Final"
 
-    implementation "io.github.cadence-oss:iwf-java-sdk:0.1.0"
+    implementation "io.github.cadence-oss:iwf-java-sdk:1.0.0-rc3"
 
     // openapi
     implementation "org.openapitools:jackson-databind-nullable:0.2.1"
