@@ -44,8 +44,6 @@ public class DynamicWorkflowService {
                                final String workflowId,
                                final String runId,
                                final SignalRequest signalRequest) {
-
-        System.out.println(adapterMap.get(workflowName).getWorkflow().getId() + "-" + signalRequest.getSignalName());
         untypedClient.SignalWorkflow(workflowId, runId,
                 adapterMap.get(workflowName).getWorkflow().getId() + "-" + signalRequest.getSignalName(),
                 signalRequest.getSignal());

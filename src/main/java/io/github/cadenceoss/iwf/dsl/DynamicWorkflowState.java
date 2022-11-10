@@ -2,6 +2,7 @@ package io.github.cadenceoss.iwf.dsl;
 
 import io.github.cadenceoss.iwf.core.Context;
 import io.github.cadenceoss.iwf.core.StateDecision;
+import io.github.cadenceoss.iwf.core.StateMovement;
 import io.github.cadenceoss.iwf.core.WorkflowState;
 import io.github.cadenceoss.iwf.core.attributes.QueryAttributesRW;
 import io.github.cadenceoss.iwf.core.attributes.SearchAttributesRW;
@@ -11,33 +12,47 @@ import io.github.cadenceoss.iwf.core.command.CommandResults;
 import io.github.cadenceoss.iwf.core.command.ImmutableSignalCommand;
 import io.github.cadenceoss.iwf.core.command.InterStateChannel;
 import io.github.cadenceoss.iwf.core.command.SignalCommand;
+import io.github.cadenceoss.iwf.dsl.utils.JQFilter;
 import io.serverlessworkflow.api.events.OnEvents;
 import io.serverlessworkflow.api.interfaces.State;
 import io.serverlessworkflow.api.states.EventState;
 import io.serverlessworkflow.api.states.OperationState;
+import io.serverlessworkflow.api.states.SwitchState;
+import io.serverlessworkflow.api.switchconditions.DataCondition;
 import io.serverlessworkflow.api.transitions.Transition;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class DynamicWorkflowState implements WorkflowState<State> {
-    private final State initialWorkflowState;
+    private static final Logger LOGGER = LoggerFactory.getLogger(DynamicWorkflowState.class);
+    private final State workflowState;
     private final String workflowId;
+    private final Map<String, State> stateMap;
 
-    private DynamicWorkflowState(final String workflowId, final State workflowSteps) {
-        this.initialWorkflowState = workflowSteps;
+    private DynamicWorkflowState(final String workflowId,
+                                 final State workflowState,
+                                 final Map<String, State> stateMap) {
+        this.workflowState = workflowState;
         this.workflowId = workflowId;
+        this.stateMap = stateMap;
     }
 
+    //TODO: I don't recommend passing all states to each state wf, but it's hackweek, and I'm out of ideas.
     public static DynamicWorkflowState of(final String workflowId,
-                                          final State initialWorkflowState) {
-        return new DynamicWorkflowState(workflowId, initialWorkflowState);
+                                          final State workflowState,
+                                          final Map<String, State> stateMap) {
+        return new DynamicWorkflowState(workflowId, workflowState, stateMap);
     }
 
     @Override
     public String getStateId() {
-        return this.workflowId + "-" + this.initialWorkflowState.getName();
+        return this.workflowId + "-" + workflowState.getName();
     }
 
     @Override
@@ -52,6 +67,7 @@ public class DynamicWorkflowState implements WorkflowState<State> {
                                 final SearchAttributesRW searchAttributes,
                                 final QueryAttributesRW queryAttributes,
                                 final InterStateChannel interStateChannel) {
+        LOGGER.info("Received start request for input {} ", input.getName());
         if (input instanceof EventState) {
             return CommandRequest.forAllCommandCompleted(getSignalCommandsForEventState((EventState) input));
         }
@@ -66,31 +82,60 @@ public class DynamicWorkflowState implements WorkflowState<State> {
                                 final SearchAttributesRW searchAttributes,
                                 final QueryAttributesRW queryAttributes,
                                 final InterStateChannel interStateChannel) {
+        LOGGER.info("Received decide request for input {} ", input.getName());
 
         if (input instanceof OperationState && input.getEnd().isTerminate()) {
             return StateDecision.gracefulCompleteWorkflow();
+        } else if (input instanceof SwitchState) {
+            SwitchState switchState = (SwitchState) input;
+            if (switchState.getDataConditions() != null && switchState.getDataConditions().size() > 0) {
+                // evaluate each condition to see if it's true. If none are true default to defaultCondition
+                StateMovement[] stateMovements = getStateMovements(switchState, queryAttributes.get(workflowId + "-" + input.getName(), Object.class)).toArray(new StateMovement[]{});
+                StateDecision.multiNextStates(stateMovements);
+            }
         }
+
         Transition transition = input.getTransition();
         //If the transition state is equal to null, we've reached the end of either a branch or the wf as a whole.
         if (transition == null || transition.getNextState() == null) {
             return StateDecision.DEAD_END;
         } else {
-            return StateDecision.singleNextState(workflowId + "-" + transition.getNextState(), input);
+            if (commandResults.getAllSignalCommandResults().size() > 0) {
+                LOGGER.info("Registering query attributes..");
+                queryAttributes.set(workflowId + "-" + transition.getNextState(), commandResults.getAllSignalCommandResults().get(0).getSignalValue());
+            }
+            return StateDecision.singleNextState(workflowId + "-" + transition.getNextState(), stateMap.get(transition.getNextState()));
         }
     }
 
     private SignalCommand[] getSignalCommandsForEventState(final EventState input) {
-        List<String> onEventTypes = input.getOnEvents().stream()
+        List<String> onEventNames = input.getOnEvents().stream()
                 .map(OnEvents::getEventRefs)
                 .flatMap(Collection::stream)
                 .collect(Collectors.toList());
 
-        return onEventTypes.stream()
+        return onEventNames.stream()
                 .map(oet ->
                         ImmutableSignalCommand.builder()
                                 .commandId(this.workflowId + "-" + oet)
                                 .signalChannelName(this.workflowId + "-" + oet)
                                 .build())
                 .toArray(SignalCommand[]::new);
+    }
+
+    private List<StateMovement> getStateMovements(final SwitchState switchState, final Object signal) {
+        List<StateMovement> movements = new ArrayList<>();
+        for (DataCondition dataCondition : switchState.getDataConditions()) {
+            if (JQFilter.getInstance()
+                    .evaluateBooleanExpression(dataCondition.getCondition(), signal)) {
+                Transition transition = dataCondition.getTransition();
+                if (transition != null
+                        && transition.getNextState() != null) {
+                    StateMovement stateMovement = StateMovement.create(workflowId + "-" + transition.getNextState(), stateMap.get(transition.getNextState()));
+                    movements.add(stateMovement);
+                }
+            }
+        }
+        return movements;
     }
 }

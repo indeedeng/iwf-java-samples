@@ -13,16 +13,21 @@ import io.serverlessworkflow.utils.WorkflowUtils;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class DynamicDslWorkflowAdapter {
     private static final int DEFAULT_WORKFLOW_START_POS = 0;
 
     private final Workflow workflow;
+    private final Map<String, State> stateMap;
 
     public DynamicDslWorkflowAdapter(final Workflow workflow) {
         this.workflow = workflow;
+        stateMap = workflow.getStates().stream()
+                .collect(Collectors.toMap(State::getName, Function.identity()));
     }
 
     public List<StateDef> getStateDefsForWorkflow() {
@@ -34,13 +39,6 @@ public class DynamicDslWorkflowAdapter {
             stateDef.map(stateDefList::add);
         }
         return stateDefList;
-    }
-
-    private Optional<StateDef> createStateDef(final State s, boolean isStart) {
-        return Optional.of(ImmutableStateDef.builder()
-                .canStartWorkflow(isStart)
-                .workflowState(DynamicWorkflowState.of(workflow.getId(), s))
-                .build());
     }
 
     public List<SignalChannelDef> getSignalChannelDefForWorkflow() {
@@ -57,10 +55,6 @@ public class DynamicDslWorkflowAdapter {
                 .collect(Collectors.toList());
     }
 
-    private String getSignalChannelName(final EventDefinition eventDefinition) {
-        return workflow.getId() + "-" + eventDefinition.getName();
-    }
-
     public Workflow getWorkflow() {
         return workflow;
     }
@@ -69,7 +63,15 @@ public class DynamicDslWorkflowAdapter {
         return WorkflowUtils.getStartingState(workflow);
     }
 
-
+    private Optional<StateDef> createStateDef(final State s, boolean isStart) {
+        return Optional.of(ImmutableStateDef.builder()
+                .canStartWorkflow(isStart)
+                .workflowState(DynamicWorkflowState.of(workflow.getId(), s, stateMap))
+                .build());
+    }
+    private String getSignalChannelName(final EventDefinition eventDefinition) {
+        return workflow.getId() + "-" + eventDefinition.getName();
+    }
     private Class<?> getClassType(final EventDefinition eventDefinition) {
         try {
             return Class.forName(eventDefinition.getType());

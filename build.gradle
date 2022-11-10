@@ -48,6 +48,7 @@ dependencies {
     implementation "io.serverlessworkflow:serverlessworkflow-validation:${serverlessVersion}"
     implementation "io.serverlessworkflow:serverlessworkflow-spi:${serverlessVersion}"
     implementation "io.serverlessworkflow:serverlessworkflow-util:${serverlessVersion}"
+    implementation "net.thisptr:jackson-jq:1.0.0-preview.20220705"
 
 
     // immutable
