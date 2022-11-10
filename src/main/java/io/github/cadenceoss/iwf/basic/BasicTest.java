@@ -23,7 +23,7 @@ public class BasicTest {
         registry.addWorkflow(wf);
 
         final Client client = new Client(registry, ClientOptions.minimum(
-                "http://localhost:8181", "http://localhost:8080/default"
+                "http://localhost:8181", "http://localhost:8801"
         ));
 
         final String wfId = "basic-test-id" + System.currentTimeMillis() / 1000;
