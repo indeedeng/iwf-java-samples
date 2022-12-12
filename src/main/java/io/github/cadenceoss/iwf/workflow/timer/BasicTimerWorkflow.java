@@ -1,17 +1,18 @@
-package io.github.cadenceoss.iwf.basic;
+package io.github.cadenceoss.iwf.workflow.timer;
 
 import io.github.cadenceoss.iwf.core.StateDef;
 import io.github.cadenceoss.iwf.core.Workflow;
+import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
 import java.util.List;
 
-public class BasicWorkflow implements Workflow {
+@Component
+public class BasicTimerWorkflow implements Workflow {
     @Override
     public List<StateDef> getStates() {
         return Arrays.asList(
-                StateDef.startingState(new BasicWorkflowS1()),
-                StateDef.nonStartingState(new BasicWorkflowS2())
+                StateDef.startingState(new BasicTimerWorkflowState1())
         );
     }
 }
