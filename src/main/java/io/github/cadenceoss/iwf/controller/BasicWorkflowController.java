@@ -6,8 +6,6 @@ import io.github.cadenceoss.iwf.core.Client;
 import io.github.cadenceoss.iwf.core.ImmutableWorkflowStartOptions;
 import io.github.cadenceoss.iwf.core.WorkflowStartOptions;
 import io.github.cadenceoss.iwf.core.options.WorkflowIdReusePolicy;
-import io.github.cadenceoss.iwf.models.ImmutableStartWorkflowResponse;
-import io.github.cadenceoss.iwf.models.StartWorkflowResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,7 +26,7 @@ public class BasicWorkflowController {
     }
 
     @GetMapping("/start")
-    public ResponseEntity<StartWorkflowResponse> start() {
+    public ResponseEntity<String> start() {
         final String wfId = "basic-test-id" + System.currentTimeMillis() / 1000;
         final WorkflowStartOptions startOptions = ImmutableWorkflowStartOptions.builder()
                 .workflowTimeoutSeconds(10)
@@ -37,9 +35,8 @@ public class BasicWorkflowController {
         final Integer input = 0;
         final String runId = client.startWorkflow(BasicWorkflow.class, BasicWorkflowS1.StateId, input, wfId, startOptions);
 
-        return ResponseEntity.ok(ImmutableStartWorkflowResponse.builder()
-                .workflowId(wfId)
-                .runId(runId)
-                .build());
+        final Integer output = client.getSimpleWorkflowResultWithWait(Integer.class, wfId);
+
+        return ResponseEntity.ok(String.format("runId: %s, output: %d", runId, output));
     }
 }
