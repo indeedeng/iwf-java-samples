@@ -31,7 +31,7 @@ public class DynamicWorkflowService {
         DynamicDslWorkflowAdapter adapter = adapterMap.get(workflowName);
         State startState = adapter.getFirstState();
 
-        String runId = untypedClient.StartWorkflow(DynamicDslWorkflow.class.getSimpleName(),
+        String runId = untypedClient.startWorkflow(DynamicDslWorkflow.class.getSimpleName(),
                 adapter.getWorkflow().getId() + "-" + startState.getName(),
                 adapter.getFirstState(), workflowId, WorkflowStartOptions.minimum(100));
         return ImmutableStartWorkflowResponse.builder()
@@ -44,7 +44,7 @@ public class DynamicWorkflowService {
                                final String workflowId,
                                final String runId,
                                final SignalRequest signalRequest) {
-        untypedClient.SignalWorkflow(workflowId, runId,
+        untypedClient.signalWorkflow(workflowId, runId,
                 adapterMap.get(workflowName).getWorkflow().getId() + "-" + signalRequest.getSignalName(),
                 signalRequest.getSignal());
     }

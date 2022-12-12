@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Configuration
-public class StatelessConfig {
+public class DslConfig {
 
     @Bean
     public Map<String, Workflow> workflows(@Value("classpath:dsl") final Resource dslFileDir) throws IOException {

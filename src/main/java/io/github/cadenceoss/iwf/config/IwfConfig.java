@@ -1,6 +1,7 @@
 package io.github.cadenceoss.iwf.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.github.cadenceoss.iwf.core.Client;
 import io.github.cadenceoss.iwf.core.ClientOptions;
 import io.github.cadenceoss.iwf.core.JacksonJsonObjectEncoder;
 import io.github.cadenceoss.iwf.core.Registry;
@@ -14,7 +15,7 @@ import org.springframework.context.annotation.Configuration;
 import java.util.Arrays;
 
 @Configuration
-public class WorkerServiceConfig {
+public class IwfConfig {
     @Bean
     public Registry registry(Workflow... workflows) {
         Registry registry = new Registry();
@@ -29,6 +30,11 @@ public class WorkerServiceConfig {
 
     @Bean
     public UntypedClient untypedClient() {
-        return new UntypedClient(ClientOptions.minimum("http://host.docker.internal:8080", ClientOptions.defaultServerUrl));
+        return new UntypedClient(ClientOptions.minimum("http://localhost:8080", ClientOptions.defaultServerUrl));
+    }
+
+    @Bean
+    public Client client(Registry registry) {
+        return new Client(registry, ClientOptions.minimum("http://localhost:8080", ClientOptions.defaultServerUrl));
     }
 }

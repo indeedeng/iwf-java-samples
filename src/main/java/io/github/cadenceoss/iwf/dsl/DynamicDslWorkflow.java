@@ -2,8 +2,9 @@ package io.github.cadenceoss.iwf.dsl;
 
 import io.github.cadenceoss.iwf.core.StateDef;
 import io.github.cadenceoss.iwf.core.Workflow;
-import io.github.cadenceoss.iwf.core.attributes.QueryAttributeDef;
-import io.github.cadenceoss.iwf.core.command.SignalChannelDef;
+import io.github.cadenceoss.iwf.core.communication.CommunicationMethodDef;
+import io.github.cadenceoss.iwf.core.persistence.DataObjectFieldDef;
+import io.github.cadenceoss.iwf.core.persistence.PersistenceFieldDef;
 import io.github.cadenceoss.iwf.dsl.utils.DynamicDslWorkflowAdapter;
 
 import java.util.ArrayList;
@@ -22,15 +23,16 @@ public class DynamicDslWorkflow implements Workflow {
     }
 
     @Override
-    public List<QueryAttributeDef> getQueryAttributes() {
+    public List<PersistenceFieldDef> getPersistenceSchema() {
         Set<String> attributeDefs = adapterMap.values()
                 .stream()
                 .map(DynamicDslWorkflowAdapter::getStateDefsForWorkflow)
                 .flatMap(Collection::stream)
                 .map(s -> s.getWorkflowState().getStateId())
                 .collect(Collectors.toSet());
+
         return attributeDefs.stream()
-                .map(name -> QueryAttributeDef.create(Object.class, name))
+                .map(name -> DataObjectFieldDef.create(Object.class, name))
                 .collect(Collectors.toList());
     }
 
@@ -43,7 +45,7 @@ public class DynamicDslWorkflow implements Workflow {
     }
 
     @Override
-    public List<SignalChannelDef> getSignalChannels() {
+    public List<CommunicationMethodDef> getCommunicationSchema() {
         return adapterMap.values().stream()
                 .map(DynamicDslWorkflowAdapter::getSignalChannelDefForWorkflow)
                 .flatMap(Collection::stream)

@@ -4,14 +4,12 @@ import io.github.cadenceoss.iwf.core.Context;
 import io.github.cadenceoss.iwf.core.StateDecision;
 import io.github.cadenceoss.iwf.core.StateMovement;
 import io.github.cadenceoss.iwf.core.WorkflowState;
-import io.github.cadenceoss.iwf.core.attributes.QueryAttributesRW;
-import io.github.cadenceoss.iwf.core.attributes.SearchAttributesRW;
-import io.github.cadenceoss.iwf.core.attributes.StateLocal;
 import io.github.cadenceoss.iwf.core.command.CommandRequest;
 import io.github.cadenceoss.iwf.core.command.CommandResults;
-import io.github.cadenceoss.iwf.core.command.ImmutableSignalCommand;
-import io.github.cadenceoss.iwf.core.command.InterStateChannel;
-import io.github.cadenceoss.iwf.core.command.SignalCommand;
+import io.github.cadenceoss.iwf.core.communication.Communication;
+import io.github.cadenceoss.iwf.core.communication.ImmutableSignalCommand;
+import io.github.cadenceoss.iwf.core.communication.SignalCommand;
+import io.github.cadenceoss.iwf.core.persistence.Persistence;
 import io.github.cadenceoss.iwf.dsl.utils.JQFilter;
 import io.serverlessworkflow.api.events.OnEvents;
 import io.serverlessworkflow.api.interfaces.State;
@@ -63,10 +61,8 @@ public class DynamicWorkflowState implements WorkflowState<State> {
     @Override
     public CommandRequest start(final Context context,
                                 final State input,
-                                final StateLocal stateLocals,
-                                final SearchAttributesRW searchAttributes,
-                                final QueryAttributesRW queryAttributes,
-                                final InterStateChannel interStateChannel) {
+                                Persistence persistence,
+                                final Communication communication) {
         LOGGER.info("Received start request for input {} ", input.getName());
         if (input instanceof EventState) {
             return CommandRequest.forAllCommandCompleted(getSignalCommandsForEventState((EventState) input));
@@ -78,10 +74,8 @@ public class DynamicWorkflowState implements WorkflowState<State> {
     public StateDecision decide(final Context context,
                                 final State input,
                                 final CommandResults commandResults,
-                                final StateLocal stateLocals,
-                                final SearchAttributesRW searchAttributes,
-                                final QueryAttributesRW queryAttributes,
-                                final InterStateChannel interStateChannel) {
+                                Persistence persistence,
+                                final Communication communication) {
         LOGGER.info("Received decide request for input {} ", input.getName());
 
         if (input instanceof OperationState && input.getEnd().isTerminate()) {
@@ -90,7 +84,7 @@ public class DynamicWorkflowState implements WorkflowState<State> {
             SwitchState switchState = (SwitchState) input;
             if (switchState.getDataConditions() != null && switchState.getDataConditions().size() > 0) {
                 // evaluate each condition to see if it's true. If none are true default to defaultCondition
-                StateMovement[] stateMovements = getStateMovements(switchState, queryAttributes.get(workflowId + "-" + input.getName(), Object.class)).toArray(new StateMovement[]{});
+                StateMovement[] stateMovements = getStateMovements(switchState, persistence.getDataObject(workflowId + "-" + input.getName(), Object.class)).toArray(new StateMovement[]{});
                 StateDecision.multiNextStates(stateMovements);
             }
         }
@@ -102,7 +96,7 @@ public class DynamicWorkflowState implements WorkflowState<State> {
         } else {
             if (commandResults.getAllSignalCommandResults().size() > 0) {
                 LOGGER.info("Registering query attributes..");
-                queryAttributes.set(workflowId + "-" + transition.getNextState(), commandResults.getAllSignalCommandResults().get(0).getSignalValue());
+                persistence.setDataObject(workflowId + "-" + transition.getNextState(), commandResults.getAllSignalCommandResults().get(0).getSignalValue());
             }
             return StateDecision.singleNextState(workflowId + "-" + transition.getNextState(), stateMap.get(transition.getNextState()));
         }

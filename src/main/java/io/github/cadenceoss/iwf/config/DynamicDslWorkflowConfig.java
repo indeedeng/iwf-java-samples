@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Configuration
-public class WorkflowConfig {
+public class DynamicDslWorkflowConfig {
     @Bean
     public io.github.cadenceoss.iwf.core.Workflow dynamicWorkflow(final Map<String, DynamicDslWorkflowAdapter> adapterMap) {
         return new DynamicDslWorkflow(adapterMap);
