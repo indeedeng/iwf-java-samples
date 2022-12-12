@@ -17,7 +17,7 @@
  *  permissions and limitations under the License.
  */
 
-package io.github.cadenceoss.iwf.dsl.utils;
+package io.github.cadenceoss.iwf.workflow.dsl.utils;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;

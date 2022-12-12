@@ -1,7 +1,7 @@
 package io.github.cadenceoss.iwf.config;
 
-import io.github.cadenceoss.iwf.dsl.DynamicDslWorkflow;
-import io.github.cadenceoss.iwf.dsl.utils.DynamicDslWorkflowAdapter;
+import io.github.cadenceoss.iwf.workflow.dsl.DynamicDslWorkflow;
+import io.github.cadenceoss.iwf.workflow.dsl.utils.DynamicDslWorkflowAdapter;
 import io.serverlessworkflow.api.Workflow;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Configuration
-public class DynamicDslWorkflowConfig {
+public class DslWorkflowConfig {
     @Bean
     public io.github.cadenceoss.iwf.core.Workflow dynamicWorkflow(final Map<String, DynamicDslWorkflowAdapter> adapterMap) {
         return new DynamicDslWorkflow(adapterMap);

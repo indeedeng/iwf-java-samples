@@ -1,10 +1,10 @@
-package io.github.cadenceoss.iwf.dsl.utils;
+package io.github.cadenceoss.iwf.workflow.dsl.utils;
 
 import io.github.cadenceoss.iwf.core.ImmutableStateDef;
 import io.github.cadenceoss.iwf.core.StateDef;
 import io.github.cadenceoss.iwf.core.communication.ImmutableSignalChannelDef;
 import io.github.cadenceoss.iwf.core.communication.SignalChannelDef;
-import io.github.cadenceoss.iwf.dsl.DynamicWorkflowState;
+import io.github.cadenceoss.iwf.workflow.dsl.DynamicWorkflowState;
 import io.serverlessworkflow.api.Workflow;
 import io.serverlessworkflow.api.events.EventDefinition;
 import io.serverlessworkflow.api.interfaces.State;

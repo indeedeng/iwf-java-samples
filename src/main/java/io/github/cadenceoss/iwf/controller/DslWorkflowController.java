@@ -14,12 +14,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import java.util.List;
 
 @Controller
-@RequestMapping("/dynamic-dsl")
-public class DynamicDslWorkflowController {
+@RequestMapping("/dsl")
+public class DslWorkflowController {
 
     private final DynamicWorkflowService dynamicWorkflowService;
 
-    public DynamicDslWorkflowController(
+    public DslWorkflowController(
             final DynamicWorkflowService dynamicWorkflowService
     ) {
         this.dynamicWorkflowService = dynamicWorkflowService;

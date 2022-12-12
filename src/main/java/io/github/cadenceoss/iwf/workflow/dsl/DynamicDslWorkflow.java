@@ -1,11 +1,11 @@
-package io.github.cadenceoss.iwf.dsl;
+package io.github.cadenceoss.iwf.workflow.dsl;
 
 import io.github.cadenceoss.iwf.core.StateDef;
 import io.github.cadenceoss.iwf.core.Workflow;
 import io.github.cadenceoss.iwf.core.communication.CommunicationMethodDef;
 import io.github.cadenceoss.iwf.core.persistence.DataObjectDef;
 import io.github.cadenceoss.iwf.core.persistence.PersistenceFieldDef;
-import io.github.cadenceoss.iwf.dsl.utils.DynamicDslWorkflowAdapter;
+import io.github.cadenceoss.iwf.workflow.dsl.utils.DynamicDslWorkflowAdapter;
 
 import java.util.ArrayList;
 import java.util.Collection;

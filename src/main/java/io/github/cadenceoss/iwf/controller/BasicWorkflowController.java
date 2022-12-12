@@ -1,11 +1,11 @@
 package io.github.cadenceoss.iwf.controller;
 
-import io.github.cadenceoss.iwf.basic.BasicWorkflow;
-import io.github.cadenceoss.iwf.basic.BasicWorkflowS1;
 import io.github.cadenceoss.iwf.core.Client;
 import io.github.cadenceoss.iwf.core.ImmutableWorkflowStartOptions;
 import io.github.cadenceoss.iwf.core.WorkflowStartOptions;
 import io.github.cadenceoss.iwf.core.options.WorkflowIdReusePolicy;
+import io.github.cadenceoss.iwf.workflow.basic.BasicWorkflow;
+import io.github.cadenceoss.iwf.workflow.basic.BasicWorkflowS1;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;

@@ -1,7 +1,7 @@
 package io.github.cadenceoss.iwf.config;
 
 import com.fasterxml.jackson.databind.Module;
-import io.github.cadenceoss.iwf.dsl.utils.WorkflowIdGenerator;
+import io.github.cadenceoss.iwf.workflow.dsl.utils.WorkflowIdGenerator;
 import io.serverlessworkflow.api.Workflow;
 import io.serverlessworkflow.api.mapper.WorkflowModule;
 import org.springframework.beans.factory.annotation.Value;

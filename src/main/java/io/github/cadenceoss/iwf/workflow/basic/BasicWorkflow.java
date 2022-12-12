@@ -1,4 +1,4 @@
-package io.github.cadenceoss.iwf.basic;
+package io.github.cadenceoss.iwf.workflow.basic;
 
 import io.github.cadenceoss.iwf.core.StateDef;
 import io.github.cadenceoss.iwf.core.Workflow;

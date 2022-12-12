@@ -1,4 +1,4 @@
-package io.github.cadenceoss.iwf.dsl;
+package io.github.cadenceoss.iwf.workflow.dsl;
 
 import io.github.cadenceoss.iwf.core.Context;
 import io.github.cadenceoss.iwf.core.StateDecision;
@@ -10,7 +10,7 @@ import io.github.cadenceoss.iwf.core.communication.Communication;
 import io.github.cadenceoss.iwf.core.communication.ImmutableSignalCommand;
 import io.github.cadenceoss.iwf.core.communication.SignalCommand;
 import io.github.cadenceoss.iwf.core.persistence.Persistence;
-import io.github.cadenceoss.iwf.dsl.utils.JQFilter;
+import io.github.cadenceoss.iwf.workflow.dsl.utils.JQFilter;
 import io.serverlessworkflow.api.events.OnEvents;
 import io.serverlessworkflow.api.interfaces.State;
 import io.serverlessworkflow.api.states.EventState;

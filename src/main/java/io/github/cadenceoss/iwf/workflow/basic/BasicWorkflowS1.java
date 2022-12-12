@@ -1,4 +1,4 @@
-package io.github.cadenceoss.iwf.basic;
+package io.github.cadenceoss.iwf.workflow.basic;
 
 import io.github.cadenceoss.iwf.core.Context;
 import io.github.cadenceoss.iwf.core.StateDecision;
@@ -8,9 +8,9 @@ import io.github.cadenceoss.iwf.core.command.CommandResults;
 import io.github.cadenceoss.iwf.core.communication.Communication;
 import io.github.cadenceoss.iwf.core.persistence.Persistence;
 
-public class BasicWorkflowS2 implements WorkflowState<Integer> {
+public class BasicWorkflowS1 implements WorkflowState<Integer> {
 
-    public static final String StateId = "S2";
+    public static final String StateId = "S1";
 
     @Override
     public String getStateId() {
@@ -30,6 +30,6 @@ public class BasicWorkflowS2 implements WorkflowState<Integer> {
     @Override
     public StateDecision decide(final Context context, final Integer input, final CommandResults commandResults, Persistence persistence, final Communication communication) {
         final int output = input + 1;
-        return StateDecision.gracefulCompleteWorkflow(output);
+        return StateDecision.singleNextState(BasicWorkflowS2.StateId, output);
     }
 }

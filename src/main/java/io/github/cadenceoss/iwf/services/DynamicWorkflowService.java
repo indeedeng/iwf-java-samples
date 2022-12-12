@@ -2,12 +2,12 @@ package io.github.cadenceoss.iwf.services;
 
 import io.github.cadenceoss.iwf.core.UntypedClient;
 import io.github.cadenceoss.iwf.core.WorkflowStartOptions;
-import io.github.cadenceoss.iwf.dsl.DynamicDslWorkflow;
-import io.github.cadenceoss.iwf.dsl.utils.DynamicDslWorkflowAdapter;
-import io.github.cadenceoss.iwf.dsl.utils.WorkflowIdGenerator;
 import io.github.cadenceoss.iwf.models.ImmutableStartWorkflowResponse;
 import io.github.cadenceoss.iwf.models.SignalRequest;
 import io.github.cadenceoss.iwf.models.StartWorkflowResponse;
+import io.github.cadenceoss.iwf.workflow.dsl.DynamicDslWorkflow;
+import io.github.cadenceoss.iwf.workflow.dsl.utils.DynamicDslWorkflowAdapter;
+import io.github.cadenceoss.iwf.workflow.dsl.utils.WorkflowIdGenerator;
 import io.serverlessworkflow.api.interfaces.State;
 import org.springframework.stereotype.Service;
 
