@@ -1,10 +1,11 @@
 # iwf-java-samples
 
-Samples for [iWF Java SDK]() that runs against [iWF server]()
+Samples for [iWF Java SDK](https://github.com/indeedeng/iwf-java-sdk) that runs
+against [iWF server](https://github.com/indeedeng/iwf)
 
 ## Setup
 
-1. Start a iWF server following the [instructions]()
+1. Start a iWF server following the [instructions](https://github.com/indeedeng/iwf#how-to-run-this-server)
 2. Run this project by using gradle task `bootRun`.
 
 _Note that by default this project will listen on 8080 port(default Spring port)_
