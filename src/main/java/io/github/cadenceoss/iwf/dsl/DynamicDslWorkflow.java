@@ -3,7 +3,7 @@ package io.github.cadenceoss.iwf.dsl;
 import io.github.cadenceoss.iwf.core.StateDef;
 import io.github.cadenceoss.iwf.core.Workflow;
 import io.github.cadenceoss.iwf.core.communication.CommunicationMethodDef;
-import io.github.cadenceoss.iwf.core.persistence.DataObjectFieldDef;
+import io.github.cadenceoss.iwf.core.persistence.DataObjectDef;
 import io.github.cadenceoss.iwf.core.persistence.PersistenceFieldDef;
 import io.github.cadenceoss.iwf.dsl.utils.DynamicDslWorkflowAdapter;
 
@@ -32,7 +32,7 @@ public class DynamicDslWorkflow implements Workflow {
                 .collect(Collectors.toSet());
 
         return attributeDefs.stream()
-                .map(name -> DataObjectFieldDef.create(Object.class, name))
+                .map(name -> DataObjectDef.create(Object.class, name))
                 .collect(Collectors.toList());
     }
 
