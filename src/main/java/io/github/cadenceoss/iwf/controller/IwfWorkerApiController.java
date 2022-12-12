@@ -41,6 +41,13 @@ public class IwfWorkerApiController {
         return ResponseEntity.ok(workerService.handleWorkflowStateDecide(request));
     }
 
+    /**
+     * Important NOTE!!! this exception handler will return stack trace to iWF server so that you can debug using Cadence/Temporal history(WebUI)
+     *
+     * @param req
+     * @param ex
+     * @return
+     */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> handleException(
             HttpServletRequest req, Exception ex
