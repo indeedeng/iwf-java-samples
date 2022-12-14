@@ -12,15 +12,15 @@ _Note that by default this project will listen on 8080 port(default Spring port)
 
 ## How to Start sample workflow
 
-1. [Basic IO workflow](https://github.com/indeedeng/iwf-java-samples/tree/main/src/main/java/io/github/cadenceoss/iwf/workflow/basic):
+1. [Basic IO workflow](https://github.com/indeedeng/iwf-java-samples/tree/main/src/main/java/io/iworkflow/workflow/basic):
    Open http://localhost:8080/basic/start in your browser
-2. [Persistence workflow](https://github.com/indeedeng/iwf-java-samples/tree/main/src/main/java/io/github/cadenceoss/iwf/workflow/persistence):
+2. [Persistence workflow](https://github.com/indeedeng/iwf-java-samples/tree/main/src/main/java/io/iworkflow/workflow/persistence):
    Open http://localhost:8080/persistence/start in your browser
-3. [Signal workflow](https://github.com/indeedeng/iwf-java-samples/tree/main/src/main/java/io/github/cadenceoss/iwf/workflow/signal):
+3. [Signal workflow](https://github.com/indeedeng/iwf-java-samples/tree/main/src/main/java/io/iworkflow/workflow/signal):
    Open http://localhost:8080/signal/start in your browser
-4. [Timer workflow](https://github.com/indeedeng/iwf-java-samples/tree/main/src/main/java/io/github/cadenceoss/iwf/workflow/timer):
+4. [Timer workflow](https://github.com/indeedeng/iwf-java-samples/tree/main/src/main/java/io/iworkflow/workflow/timer):
    Open http://localhost:8080/timer/start in your browser
-5. [InterstateChannel workflow](https://github.com/indeedeng/iwf-java-samples/tree/main/src/main/java/io/github/cadenceoss/iwf/workflow/interstatechannel):
+5. [InterstateChannel workflow](https://github.com/indeedeng/iwf-java-samples/tree/main/src/main/java/io/iworkflow/workflow/interstatechannel):
    Open http://localhost:8080/interstateChannel/start in your browser
 6. WIP(dsl dynamic workflow)
 
