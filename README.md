@@ -32,7 +32,11 @@ _Note that by default this project will listen on 8080 port(default Spring port)
    * How to use a durable timer
    * State1 start API will wait for a timer, when timer fires, the decide API is trigger
 5. [InterstateChannel workflow](https://github.com/indeedeng/iwf-java-samples/tree/main/src/main/java/io/iworkflow/workflow/interstatechannel):
-   Open http://localhost:8080/interstateChannel/start in your browser
+   Open http://localhost:8080/interstateChannel/start in your browser. This workflow demonstrate:
+   * How to use interstate channel to synchronize multi threading/in parallel workflow execution
+   * State0 will go to State1 and State2
+   * State1 will wait for a InterStateChannel from State2
+   * State2 will send a signal and then finish as a "dead end"
 6. WIP(dsl dynamic workflow)
 
 Then watch the workflow in Cadence or Temporal Web UI
