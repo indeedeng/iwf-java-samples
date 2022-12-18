@@ -1,7 +1,7 @@
 package io.iworkflow.controller;
 
 import io.iworkflow.core.Client;
-import io.iworkflow.core.WorkflowStartOptions;
+import io.iworkflow.core.WorkflowOptions;
 import io.iworkflow.workflow.interstatechannel.BasicInterStateChannelWorkflow;
 import io.iworkflow.workflow.interstatechannel.BasicInterStateChannelWorkflowState0;
 import org.springframework.http.ResponseEntity;
@@ -24,7 +24,7 @@ public class InterstateChannelWorkflowController {
     @GetMapping("/start")
     public ResponseEntity<String> start() {
         final String wfId = "basic-inter-state-test-id" + System.currentTimeMillis() / 1000;
-        final WorkflowStartOptions startOptions = WorkflowStartOptions.minimum(10);
+        final WorkflowOptions startOptions = WorkflowOptions.minimum(10);
         final Integer input = 1;
         final String runId = client.startWorkflow(
                 BasicInterStateChannelWorkflow.class, BasicInterStateChannelWorkflowState0.STATE_ID, input, wfId, startOptions);

@@ -1,7 +1,7 @@
 package io.iworkflow.services;
 
 import io.iworkflow.core.UntypedClient;
-import io.iworkflow.core.WorkflowStartOptions;
+import io.iworkflow.core.WorkflowOptions;
 import io.iworkflow.models.ImmutableStartWorkflowResponse;
 import io.iworkflow.models.SignalRequest;
 import io.iworkflow.models.StartWorkflowResponse;
@@ -33,7 +33,7 @@ public class DynamicWorkflowService {
 
         String runId = untypedClient.startWorkflow(DynamicDslWorkflow.class.getSimpleName(),
                 adapter.getWorkflow().getId() + "-" + startState.getName(),
-                adapter.getFirstState(), workflowId, WorkflowStartOptions.minimum(100));
+                adapter.getFirstState(), workflowId, WorkflowOptions.minimum(100));
         return ImmutableStartWorkflowResponse.builder()
                 .workflowId(workflowId)
                 .runId(runId)
