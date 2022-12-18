@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
-@RequestMapping("/WorkflowOptions")
+@RequestMapping("/persistence")
 public class PersistenceWorkflowController {
 
     private final Client client;
@@ -23,7 +23,7 @@ public class PersistenceWorkflowController {
 
     @GetMapping("/start")
     public ResponseEntity<String> start() {
-        final String wfId = "basic-WorkflowOptions-test-id" + System.currentTimeMillis() / 1000;
+        final String wfId = "basic-persistence-test-id" + System.currentTimeMillis() / 1000;
         final WorkflowOptions startOptions = WorkflowOptions.minimum(10);
         final String runId = client.startWorkflow(
                 BasicWorkflow.class, BasicWorkflowS1.StateId, "start", wfId, startOptions);
