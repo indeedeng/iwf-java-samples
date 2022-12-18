@@ -1,9 +1,9 @@
 package io.iworkflow.controller;
 
 import io.iworkflow.core.Client;
-import io.iworkflow.core.WorkflowStartOptions;
-import io.iworkflow.workflow.persistence.BasicPersistenceWorkflow;
-import io.iworkflow.workflow.persistence.BasicPersistenceWorkflowState1;
+import io.iworkflow.core.WorkflowOptions;
+import io.iworkflow.workflow.basic.BasicWorkflow;
+import io.iworkflow.workflow.basic.BasicWorkflowS1;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,9 +24,9 @@ public class PersistenceWorkflowController {
     @GetMapping("/start")
     public ResponseEntity<String> start() {
         final String wfId = "basic-persistence-test-id" + System.currentTimeMillis() / 1000;
-        final WorkflowStartOptions startOptions = WorkflowStartOptions.minimum(10);
+        final WorkflowOptions startOptions = WorkflowOptions.minimum(10);
         final String runId = client.startWorkflow(
-                BasicPersistenceWorkflow.class, BasicPersistenceWorkflowState1.STATE_ID, "start", wfId, startOptions);
+                BasicWorkflow.class, BasicWorkflowS1.StateId, "start", wfId, startOptions);
         final String output = client.getSimpleWorkflowResultWithWait(String.class, wfId);
 
         return ResponseEntity.ok(String.format("runId: %s, output: %s", runId, output));

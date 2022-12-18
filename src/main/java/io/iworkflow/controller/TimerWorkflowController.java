@@ -1,7 +1,7 @@
 package io.iworkflow.controller;
 
 import io.iworkflow.core.Client;
-import io.iworkflow.core.WorkflowStartOptions;
+import io.iworkflow.core.WorkflowOptions;
 import io.iworkflow.workflow.timer.BasicTimerWorkflow;
 import io.iworkflow.workflow.timer.BasicTimerWorkflowState1;
 import org.springframework.http.ResponseEntity;
@@ -25,7 +25,7 @@ public class TimerWorkflowController {
     public ResponseEntity<String> start() {
         final long startTs = System.currentTimeMillis();
         final String wfId = "basic-timer-test-id" + startTs / 1000;
-        final WorkflowStartOptions startOptions = WorkflowStartOptions.minimum(10);
+        final WorkflowOptions startOptions = WorkflowOptions.minimum(10);
         final Integer input = 5;
 
         final String runId = client.startWorkflow(
