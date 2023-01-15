@@ -4,3 +4,9 @@ server:
 spring:
   jackson:
     default-property-inclusion: NON_NULL
+
+iwf:
+  worker:
+    url: http://localhost:8080
+  server:
+    url: http://localhost:8801

@@ -1,6 +1,5 @@
 package io.iworkflow.config;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.iworkflow.core.Client;
 import io.iworkflow.core.ClientOptions;
 import io.iworkflow.core.JacksonJsonObjectEncoder;
@@ -9,6 +8,7 @@ import io.iworkflow.core.UnregisteredClient;
 import io.iworkflow.core.WorkerOptions;
 import io.iworkflow.core.WorkerService;
 import io.iworkflow.core.Workflow;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -24,27 +24,30 @@ public class IwfConfig {
     }
 
     @Bean
-    public WorkerService workerService(final Registry registry, final ObjectMapper mapper) {
-        return new WorkerService(registry, WorkerOptions.minimum(new JacksonJsonObjectEncoder(mapper, "BuiltinJacksonJson")));
+    public WorkerService workerService(final Registry registry) {
+        return new WorkerService(registry, WorkerOptions.defaultOptions);
     }
 
     @Bean
-    public UnregisteredClient unregisteredClient() {
+    public UnregisteredClient unregisteredClient(final @Value("${iwf.worker.url}") String workerUrl,
+                                                 final @Value("${iwf.server.url}") String serverUrl) {
         return new UnregisteredClient(
                 ClientOptions.builder()
-                        .workerUrl("http://localhost:8080")
-                        .serverUrl(ClientOptions.defaultServerUrl)
+                        .workerUrl(workerUrl)
+                        .serverUrl(serverUrl)
                         .objectEncoder(new JacksonJsonObjectEncoder())
                         .build()
         );
     }
 
     @Bean
-    public Client client(Registry registry) {
+    public Client client(Registry registry,
+                         final @Value("${iwf.worker.url}") String workerUrl,
+                         final @Value("${iwf.server.url}") String serverUrl) {
         return new Client(registry,
                 ClientOptions.builder()
-                        .workerUrl("http://localhost:8080")
-                        .serverUrl(ClientOptions.defaultServerUrl)
+                        .workerUrl(workerUrl)
+                        .serverUrl(serverUrl)
                         .objectEncoder(new JacksonJsonObjectEncoder())
                         .build()
         );
