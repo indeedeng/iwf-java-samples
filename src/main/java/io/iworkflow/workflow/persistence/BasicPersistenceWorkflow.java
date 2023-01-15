@@ -5,11 +5,13 @@ import io.iworkflow.core.Workflow;
 import io.iworkflow.core.persistence.DataObjectDef;
 import io.iworkflow.core.persistence.PersistenceFieldDef;
 import io.iworkflow.core.persistence.SearchAttributeDef;
-import io.iworkflow.core.persistence.SearchAttributeType;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
 import java.util.List;
+
+import static io.iworkflow.gen.models.SearchAttributeValueType.INT;
+import static io.iworkflow.gen.models.SearchAttributeValueType.KEYWORD;
 
 @Component
 public class BasicPersistenceWorkflow implements Workflow {
@@ -27,8 +29,8 @@ public class BasicPersistenceWorkflow implements Workflow {
     public List<PersistenceFieldDef> getPersistenceSchema() {
         return Arrays.asList(
                 DataObjectDef.create(String.class, TEST_DATA_OBJECT_KEY),
-                SearchAttributeDef.create(SearchAttributeType.INT_64, TEST_SEARCH_ATTRIBUTE_INT),
-                SearchAttributeDef.create(SearchAttributeType.KEYWORD, TEST_SEARCH_ATTRIBUTE_KEYWORD)
+                SearchAttributeDef.create(INT, TEST_SEARCH_ATTRIBUTE_INT),
+                SearchAttributeDef.create(KEYWORD, TEST_SEARCH_ATTRIBUTE_KEYWORD)
         );
     }
 }

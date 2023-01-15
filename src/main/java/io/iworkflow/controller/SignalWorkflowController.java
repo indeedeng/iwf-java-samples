@@ -1,7 +1,6 @@
 package io.iworkflow.controller;
 
 import io.iworkflow.core.Client;
-import io.iworkflow.core.WorkflowOptions;
 import io.iworkflow.workflow.signal.BasicSignalWorkflow;
 import io.iworkflow.workflow.signal.BasicSignalWorkflowState1;
 import org.springframework.http.ResponseEntity;
@@ -24,10 +23,9 @@ public class SignalWorkflowController {
     @GetMapping("/start")
     public ResponseEntity<String> start() {
         final String wfId = "basic-signal-test-id" + System.currentTimeMillis() / 1000;
-        final WorkflowOptions startOptions = WorkflowOptions.minimum(10);
         final Integer input = 1;
         final String runId = client.startWorkflow(
-                BasicSignalWorkflow.class, BasicSignalWorkflowState1.STATE_ID, input, wfId, startOptions);
+                BasicSignalWorkflow.class, wfId, 10, input);
         client.signalWorkflow(
                 BasicSignalWorkflow.class, wfId, runId, BasicSignalWorkflowState1.SIGNAL_CHANNEL_NAME_1, Integer.valueOf(2));
         final Integer output = client.getSimpleWorkflowResultWithWait(Integer.class, wfId);

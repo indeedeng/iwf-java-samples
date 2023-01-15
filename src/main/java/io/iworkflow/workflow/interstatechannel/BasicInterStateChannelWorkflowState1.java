@@ -9,19 +9,13 @@ import io.iworkflow.core.communication.Communication;
 import io.iworkflow.core.communication.InterStateChannelCommand;
 import io.iworkflow.core.communication.InterStateChannelCommandResult;
 import io.iworkflow.core.persistence.Persistence;
-import io.iworkflow.gen.models.InterStateChannelResult;
 
+import static io.iworkflow.gen.models.ChannelRequestStatus.WAITING;
 import static io.iworkflow.workflow.interstatechannel.BasicInterStateChannelWorkflow.INTER_STATE_CHANNEL_NAME_1;
 import static io.iworkflow.workflow.interstatechannel.BasicInterStateChannelWorkflow.INTER_STATE_CHANNEL_NAME_2;
 
 public class BasicInterStateChannelWorkflowState1 implements WorkflowState<Integer> {
-    public static final String STATE_ID = "inter-state-s1";
     public static final String COMMAND_ID = "test-cmd-id";
-
-    @Override
-    public String getStateId() {
-        return STATE_ID;
-    }
 
     @Override
     public Class<Integer> getInputType() {
@@ -51,7 +45,7 @@ public class BasicInterStateChannelWorkflowState1 implements WorkflowState<Integ
         Integer output = input + (Integer) result1.getValue().get();
 
         final InterStateChannelCommandResult result2 = commandResults.getAllInterStateChannelCommandResult().get(1);
-        if (result2.getRequestStatusEnum() != InterStateChannelResult.RequestStatusEnum.WAITING) {
+        if (result2.getRequestStatusEnum() != WAITING) {
             throw new RuntimeException("the second command should be waiting");
         }
         return StateDecision.gracefulCompleteWorkflow(output);

@@ -17,13 +17,6 @@ import static io.iworkflow.workflow.persistence.BasicPersistenceWorkflow.TEST_SE
 import static io.iworkflow.workflow.persistence.BasicPersistenceWorkflow.TEST_SEARCH_ATTRIBUTE_KEYWORD;
 
 public class BasicPersistenceWorkflowState1 implements WorkflowState<String> {
-    public static final String STATE_ID = "query-s1";
-
-    @Override
-    public String getStateId() {
-        return STATE_ID;
-    }
-
     @Override
     public Class<String> getInputType() {
         return String.class;

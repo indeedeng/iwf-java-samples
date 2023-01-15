@@ -11,7 +11,8 @@ import java.util.stream.Collectors;
 
 @Configuration
 public class DslWorkflowConfig {
-    @Bean
+    // TODO need to fix
+    // @Bean
     public io.iworkflow.core.Workflow dynamicWorkflow(final Map<String, DynamicDslWorkflowAdapter> adapterMap) {
         return new DynamicDslWorkflow(adapterMap);
     }

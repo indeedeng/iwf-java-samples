@@ -1,7 +1,6 @@
 package io.iworkflow.services;
 
-import io.iworkflow.core.UntypedClient;
-import io.iworkflow.core.WorkflowOptions;
+import io.iworkflow.core.UnregisteredClient;
 import io.iworkflow.models.ImmutableStartWorkflowResponse;
 import io.iworkflow.models.SignalRequest;
 import io.iworkflow.models.StartWorkflowResponse;
@@ -18,11 +17,11 @@ import java.util.stream.Collectors;
 
 @Service
 public class DynamicWorkflowService {
-    private final UntypedClient untypedClient;
+    private final UnregisteredClient unregisteredClient;
     private final Map<String, DynamicDslWorkflowAdapter> adapterMap;
 
-    public DynamicWorkflowService(final UntypedClient untypedClient, final Map<String, DynamicDslWorkflowAdapter> adapterMap) {
-        this.untypedClient = untypedClient;
+    public DynamicWorkflowService(final UnregisteredClient unregisteredClient, final Map<String, DynamicDslWorkflowAdapter> adapterMap) {
+        this.unregisteredClient = unregisteredClient;
         this.adapterMap = adapterMap;
     }
 
@@ -31,9 +30,9 @@ public class DynamicWorkflowService {
         DynamicDslWorkflowAdapter adapter = adapterMap.get(workflowName);
         State startState = adapter.getFirstState();
 
-        String runId = untypedClient.startWorkflow(DynamicDslWorkflow.class.getSimpleName(),
+        String runId = unregisteredClient.startWorkflow(DynamicDslWorkflow.class.getSimpleName(),
                 adapter.getWorkflow().getId() + "-" + startState.getName(),
-                adapter.getFirstState(), workflowId, WorkflowOptions.minimum(100));
+                workflowId, 100, adapter.getFirstState());
         return ImmutableStartWorkflowResponse.builder()
                 .workflowId(workflowId)
                 .runId(runId)
@@ -44,7 +43,7 @@ public class DynamicWorkflowService {
                                final String workflowId,
                                final String runId,
                                final SignalRequest signalRequest) {
-        untypedClient.signalWorkflow(workflowId, runId,
+        unregisteredClient.signalWorkflow(workflowId, runId,
                 adapterMap.get(workflowName).getWorkflow().getId() + "-" + signalRequest.getSignalName(),
                 signalRequest.getSignal());
     }

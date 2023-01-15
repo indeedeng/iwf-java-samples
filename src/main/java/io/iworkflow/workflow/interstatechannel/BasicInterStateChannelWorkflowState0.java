@@ -10,13 +10,6 @@ import io.iworkflow.core.communication.Communication;
 import io.iworkflow.core.persistence.Persistence;
 
 public class BasicInterStateChannelWorkflowState0 implements WorkflowState<Integer> {
-    public static final String STATE_ID = "interstate-s0";
-
-    @Override
-    public String getStateId() {
-        return STATE_ID;
-    }
-
     @Override
     public Class<Integer> getInputType() {
         return Integer.class;
@@ -37,8 +30,8 @@ public class BasicInterStateChannelWorkflowState0 implements WorkflowState<Integ
             CommandResults commandResults,
             Persistence persistence, final Communication communication) {
         return StateDecision.multiNextStates(
-                StateMovement.create(BasicInterStateChannelWorkflowState1.STATE_ID, input),
-                StateMovement.create(BasicInterStateChannelWorkflowState2.STATE_ID, input)
+                StateMovement.create(BasicInterStateChannelWorkflowState1.class, input),
+                StateMovement.create(BasicInterStateChannelWorkflowState2.class, input)
         );
     }
 }

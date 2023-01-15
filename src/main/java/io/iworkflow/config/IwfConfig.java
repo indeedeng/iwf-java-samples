@@ -5,7 +5,7 @@ import io.iworkflow.core.Client;
 import io.iworkflow.core.ClientOptions;
 import io.iworkflow.core.JacksonJsonObjectEncoder;
 import io.iworkflow.core.Registry;
-import io.iworkflow.core.UntypedClient;
+import io.iworkflow.core.UnregisteredClient;
 import io.iworkflow.core.WorkerOptions;
 import io.iworkflow.core.WorkerService;
 import io.iworkflow.core.Workflow;
@@ -29,12 +29,24 @@ public class IwfConfig {
     }
 
     @Bean
-    public UntypedClient untypedClient() {
-        return new UntypedClient(ClientOptions.minimum("http://localhost:8080", ClientOptions.defaultServerUrl));
+    public UnregisteredClient unregisteredClient() {
+        return new UnregisteredClient(
+                ClientOptions.builder()
+                        .workerUrl("http://localhost:8080")
+                        .serverUrl(ClientOptions.defaultServerUrl)
+                        .objectEncoder(new JacksonJsonObjectEncoder())
+                        .build()
+        );
     }
 
     @Bean
     public Client client(Registry registry) {
-        return new Client(registry, ClientOptions.minimum("http://localhost:8080", ClientOptions.defaultServerUrl));
+        return new Client(registry,
+                ClientOptions.builder()
+                        .workerUrl("http://localhost:8080")
+                        .serverUrl(ClientOptions.defaultServerUrl)
+                        .objectEncoder(new JacksonJsonObjectEncoder())
+                        .build()
+        );
     }
 }

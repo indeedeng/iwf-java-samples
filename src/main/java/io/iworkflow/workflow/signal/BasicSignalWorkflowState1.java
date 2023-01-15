@@ -9,19 +9,15 @@ import io.iworkflow.core.communication.Communication;
 import io.iworkflow.core.communication.SignalCommand;
 import io.iworkflow.core.communication.SignalCommandResult;
 import io.iworkflow.core.persistence.Persistence;
-import io.iworkflow.gen.models.SignalResult;
+
+import static io.iworkflow.gen.models.ChannelRequestStatus.WAITING;
 
 public class BasicSignalWorkflowState1 implements WorkflowState<Integer> {
-    public static final String STATE_ID = "signal-s1";
     public static final String SIGNAL_CHANNEL_NAME_1 = "test-signal-1";
 
     public static final String SIGNAL_CHANNEL_NAME_2 = "test-signal-2";
     public static final String COMMAND_ID = "test-signal-id";
 
-    @Override
-    public String getStateId() {
-        return STATE_ID;
-    }
 
     @Override
     public Class<Integer> getInputType() {
@@ -51,7 +47,7 @@ public class BasicSignalWorkflowState1 implements WorkflowState<Integer> {
         Integer output = input + (Integer) signalCommandResult.getSignalValue().get();
 
         SignalCommandResult signalCommandResult2 = commandResults.getAllSignalCommandResults().get(1);
-        if (signalCommandResult2.getSignalRequestStatusEnum() != SignalResult.SignalRequestStatusEnum.WAITING) {
+        if (signalCommandResult2.getSignalRequestStatusEnum() != WAITING) {
             throw new RuntimeException("the second signal should be waiting");
         }
         return StateDecision.gracefulCompleteWorkflow(output);

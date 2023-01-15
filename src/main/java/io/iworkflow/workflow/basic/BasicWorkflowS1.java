@@ -10,13 +10,6 @@ import io.iworkflow.core.persistence.Persistence;
 
 public class BasicWorkflowS1 implements WorkflowState<Integer> {
 
-    public static final String StateId = "S1";
-
-    @Override
-    public String getStateId() {
-        return StateId;
-    }
-
     @Override
     public Class<Integer> getInputType() {
         return Integer.class;
@@ -30,6 +23,6 @@ public class BasicWorkflowS1 implements WorkflowState<Integer> {
     @Override
     public StateDecision decide(final Context context, final Integer input, final CommandResults commandResults, Persistence persistence, final Communication communication) {
         final int output = input + 1;
-        return StateDecision.singleNextState(BasicWorkflowS2.StateId, output);
+        return StateDecision.singleNextState(BasicWorkflowS2.class, output);
     }
 }
