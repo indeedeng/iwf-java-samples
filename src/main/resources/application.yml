@@ -1,5 +1,5 @@
 server:
-  port: 8080
+  port: 8081
 
 spring:
   jackson:
@@ -7,6 +7,6 @@ spring:
 
 iwf:
   worker:
-    url: http://localhost:8080
+    url: http://localhost:8081
   server:
     url: http://localhost:8801
