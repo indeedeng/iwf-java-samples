@@ -44,7 +44,7 @@ public class SubscriptionWorkflow implements Workflow {
     @Override
     public List<CommunicationMethodDef> getCommunicationSchema() {
         return Arrays.asList(
-                SignalChannelDef.create(Void.class, signalCancelSubscription),
+                SignalChannelDef.create(Boolean.class, signalCancelSubscription), // TODO change to Void after https://github.com/indeedeng/iwf-java-sdk/pull/128 is release
                 SignalChannelDef.create(Integer.class, signalUpdateBillingPeriodCharge)
         );
     }

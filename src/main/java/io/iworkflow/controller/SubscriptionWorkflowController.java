@@ -54,7 +54,7 @@ public class SubscriptionWorkflowController {
     public ResponseEntity<String> cancel(
             @RequestParam String workflowId
     ) {
-        client.signalWorkflow(SubscriptionWorkflow.class, workflowId, "", signalCancelSubscription, null);
+        client.signalWorkflow(SubscriptionWorkflow.class, workflowId, "", signalCancelSubscription, true);
         return ResponseEntity.ok("done");
     }
 

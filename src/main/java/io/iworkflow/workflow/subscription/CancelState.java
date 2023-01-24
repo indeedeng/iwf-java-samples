@@ -2,6 +2,7 @@ package io.iworkflow.workflow.subscription;
 
 import io.iworkflow.core.Context;
 import io.iworkflow.core.StateDecision;
+import io.iworkflow.core.StateMovement;
 import io.iworkflow.core.WorkflowState;
 import io.iworkflow.core.command.CommandRequest;
 import io.iworkflow.core.command.CommandResults;
@@ -33,6 +34,8 @@ public class CancelState implements WorkflowState<Void> {
 
         System.out.println("sending an cancellation email to " + customer.getEmail());
 
-        return StateDecision.forceCompleteWorkflow();
+        return StateDecision.builder()
+                .addNextStates(StateMovement.forceCompleteWorkflow())
+                .build(); // TODO change to StateDecision.forceCompleteWorkflow();
     }
 }

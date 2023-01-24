@@ -2,6 +2,7 @@ package io.iworkflow.workflow.subscription;
 
 import io.iworkflow.core.Context;
 import io.iworkflow.core.StateDecision;
+import io.iworkflow.core.StateMovement;
 import io.iworkflow.core.WorkflowState;
 import io.iworkflow.core.command.CommandRequest;
 import io.iworkflow.core.command.CommandResults;
@@ -46,7 +47,9 @@ public class ChargeLoopState implements WorkflowState<Void> {
         final Boolean subscriptionOver = persistence.getStateLocal(subscriptionOverKey, Boolean.class);
         if (subscriptionOver != null && subscriptionOver) {
             System.out.println("sending an subscription over email to " + customer.getEmail());
-            return StateDecision.forceCompleteWorkflow();
+            return StateDecision.builder()
+                    .addNextStates(StateMovement.forceCompleteWorkflow())
+                    .build(); // TODO change to StateDecision.forceCompleteWorkflow();
         }
 
         System.out.printf("this is an RPC call to charge user %s for %d \n", customer.getEmail(), customer.getSubscription().getBillingPeriodCharge());
