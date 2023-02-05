@@ -55,6 +55,14 @@ dependencies {
     compileOnly "org.immutables:value:2.9.2"
     annotationProcessor "org.immutables:value:2.9.2"
 
+    testImplementation "org.mockito:mockito-core:4.0.0"
+    testImplementation(platform("org.junit:junit-bom:5.9.2"))
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher") {
+        because("Only needed to run tests in a version of IntelliJ IDEA that bundles older versions")
+    }
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
+    testRuntimeOnly("org.junit.vintage:junit-vintage-engine")
+
 }
 
 tasks.named("test") {
