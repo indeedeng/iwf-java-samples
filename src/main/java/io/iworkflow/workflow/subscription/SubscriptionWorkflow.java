@@ -130,7 +130,7 @@ class ChargeCurrentBillState implements WorkflowState<Void> {
         this.myService = myService;
     }
 
-    private final String subscriptionOverKey = "subscriptionOver";
+    final static String subscriptionOverKey = "subscriptionOver";
 
     @Override
 
