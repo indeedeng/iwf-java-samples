@@ -8,7 +8,7 @@ is to match the use case described in
 
 To start a subscription workflow:
 
-* Open http://localhost:8080/subscription/start
+* Open http://localhost:8803/subscription/start
 
 It will return you a **workflowId**.
 
@@ -17,11 +17,11 @@ The controller is hard coded to start with 20s as trial period, 10s as billing p
 
 To update the period charge amount :
 
-* Open http://localhost:8080/subscription/updateChargeAmount?workflowId=<TheWorkflowId>&newChargeAmount=<The new amount>
+* Open http://localhost:8803/subscription/updateChargeAmount?workflowId=<TheWorkflowId>&newChargeAmount=<The new amount>
 
 To cancel the subscription:
 
-* Open http://localhost:8080/subscription/cancel?workflowId=<TheWorkflowId>
+* Open http://localhost:8803/subscription/cancel?workflowId=<TheWorkflowId>
 
 It's recommended to use an iWF state diagram to visualize the workflow design like this:
 ![Subscription workflow iWF state diagram](https://user-images.githubusercontent.com/4523955/216396635-1c46df3c-e087-415a-996e-16ce47e7ccb2.png)

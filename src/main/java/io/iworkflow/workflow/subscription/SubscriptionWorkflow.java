@@ -32,6 +32,12 @@ import static io.iworkflow.workflow.subscription.SubscriptionWorkflow.signalUpda
 @Component
 public class SubscriptionWorkflow implements Workflow {
 
+    private MyService myService;
+
+    public SubscriptionWorkflow(MyService myService) {
+        this.myService = myService;
+    }
+
     public static final String keyBillingPeriodNum = "billingPeriodNum";
     public static final String keyCustomer = "customer";
 
@@ -42,9 +48,9 @@ public class SubscriptionWorkflow implements Workflow {
     public List<StateDef> getStates() {
         return Arrays.asList(
                 StateDef.startingState(new InitState()),
-                StateDef.nonStartingState(new CancelState()),
-                StateDef.nonStartingState(new ChargeCurrentBillState()),
-                StateDef.nonStartingState(new TrialState()),
+                StateDef.nonStartingState(new CancelState(myService)),
+                StateDef.nonStartingState(new ChargeCurrentBillState(myService)),
+                StateDef.nonStartingState(new TrialState(myService)),
                 StateDef.nonStartingState(new UpdateChargeAmountState())
 
         );
@@ -88,6 +94,12 @@ class InitState implements WorkflowState<Customer> {
 
 class TrialState implements WorkflowState<Void> {
 
+    private MyService myService;
+
+    TrialState(MyService myService) {
+        this.myService = myService;
+    }
+
     @Override
     public Class<Void> getInputType() {
         return Void.class;
@@ -96,7 +108,7 @@ class TrialState implements WorkflowState<Void> {
     @Override
     public CommandRequest start(final Context context, final Void input, Persistence persistence, final Communication communication) {
         final Customer customer = persistence.getDataObject(keyCustomer, Customer.class);
-        System.out.println("sending an welcome email to " + customer.getEmail());
+        myService.sendEmail(customer.getEmail(), "welcome to triage", "Hello, this is the content of the email...");
 
         return CommandRequest.forAllCommandCompleted(
                 TimerCommand.createByDuration(customer.getSubscription().getTrialPeriod())
@@ -112,7 +124,13 @@ class TrialState implements WorkflowState<Void> {
 
 class ChargeCurrentBillState implements WorkflowState<Void> {
 
-    private final String subscriptionOverKey = "subscriptionOver";
+    private MyService myService;
+
+    ChargeCurrentBillState(MyService myService) {
+        this.myService = myService;
+    }
+
+    final static String subscriptionOverKey = "subscriptionOver";
 
     @Override
 
@@ -142,11 +160,11 @@ class ChargeCurrentBillState implements WorkflowState<Void> {
 
         final Boolean subscriptionOver = persistence.getStateLocal(subscriptionOverKey, Boolean.class);
         if (subscriptionOver != null && subscriptionOver) {
-            System.out.println("sending an subscription over email to " + customer.getEmail());
+            myService.sendEmail(customer.getEmail(), "subscription over", "Hello, this is the content of the email...");
             return StateDecision.forceCompleteWorkflow();
         }
 
-        System.out.printf("this is an RPC call to charge user %s for %d \n", customer.getEmail(), customer.getSubscription().getBillingPeriodCharge());
+        myService.chargeUser(customer.getEmail(), customer.getId(), customer.getSubscription().getBillingPeriodCharge());
 
         return StateDecision.singleNextState(ChargeCurrentBillState.class);
     }
@@ -183,6 +201,12 @@ class UpdateChargeAmountState implements WorkflowState<Void> {
 
 class CancelState implements WorkflowState<Void> {
 
+    private MyService myService;
+
+    CancelState(final MyService myService) {
+        this.myService = myService;
+    }
+
     @Override
     public Class<Void> getInputType() {
         return Void.class;
@@ -199,7 +223,7 @@ class CancelState implements WorkflowState<Void> {
     public StateDecision decide(final Context context, final Void input, final CommandResults commandResults, Persistence persistence, final Communication communication) {
         final Customer customer = persistence.getDataObject(keyCustomer, Customer.class);
 
-        System.out.println("sending an cancellation email to " + customer.getEmail());
+        myService.sendEmail(customer.getEmail(), "subscription canceled", "Hello, this is the content of the email...");
 
         return StateDecision.forceCompleteWorkflow();
     }
