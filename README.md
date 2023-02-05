@@ -15,6 +15,7 @@ _Note that by default this project will listen on 8803 port(default Spring port)
 ### Subscription workflow
 
 This [Subscription workflow](https://github.com/indeedeng/iwf-java-samples/tree/main/src/main/java/io/iworkflow/workflow/subscription)
+with [unit tests](https://github.com/indeedeng/iwf-java-samples/tree/test/src/main/java/io/iworkflow/workflow/subscription)
 is to match the use case described in
 
 * [Temporal TypeScript tutorials](https://learn.temporal.io/tutorials/typescript/subscriptions/)
