@@ -8,7 +8,7 @@ against [iWF server](https://github.com/indeedeng/iwf)
 1. Start a iWF server following the [instructions](https://github.com/indeedeng/iwf#how-to-run-this-server)
 2. Run this project by using gradle task `bootRun`.
 
-_Note that by default this project will listen on 8803 port(default Spring port)_
+_Note that by default this project will listen on 8803 port
 
 ## Product Use case samples
 
