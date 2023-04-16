@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 This [Subscription workflow](https://github.com/indeedeng/iwf-java-samples/tree/main/src/main/java/io/iworkflow/workflow/subscription)
 with [unit tests](https://github.com/indeedeng/iwf-java-samples/tree/main/src/test/java/io/iworkflow/workflow/subscription)
 is to match the use case described in
@@ -6,6 +7,17 @@ is to match the use case described in
 * [Temporal go sample](https://github.com/temporalio/subscription-workflow-project-template-go)
 * [Temporal Java Sample](https://github.com/temporalio/subscription-workflow-project-template-java)
 * [Cadence Java example](https://cadenceworkflow.io/docs/concepts/workflows/#example)
+||||||| parent of d9ce842 (Upgrade to 1.5.1-beta-3)
+This [Subscription workflow](https://github.com/indeedeng/iwf-java-samples/tree/main/src/main/java/io/iworkflow/workflow/subscription)
+is to match the use case described in
+
+* [Temporal TypeScript tutorials](https://learn.temporal.io/tutorials/typescript/subscriptions/)
+* [Temporal go sample](https://github.com/temporalio/subscription-workflow-project-template-go)
+* [Temporal Java Sample](https://github.com/temporalio/subscription-workflow-project-template-java)
+* [Cadence Java example](https://cadenceworkflow.io/docs/concepts/workflows/#example)
+=======
+This [Subscription](https://github.com/indeedeng/iwf-java-samples/tree/main/src/main/java/io/iworkflow/workflow/subscription)
+>>>>>>> d9ce842 (Upgrade to 1.5.1-beta-3)
 
 ### Use case statement
 Build an application for a limited time Subscription (eg a 36 month Phone plan) that satisfies these conditions:

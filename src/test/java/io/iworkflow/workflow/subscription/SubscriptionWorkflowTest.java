@@ -77,95 +77,95 @@ public class SubscriptionWorkflowTest {
 
     @Test
     public void testInitStateStart() {
-        final CommandRequest commandRequest = initState.start(context, testCustomer, persistence, communication);
+        final CommandRequest commandRequest = initState.waitUntil(context, testCustomer, persistence, communication);
 
         assertEquals(CommandRequest.empty, commandRequest);
-        verify(persistence).setDataObject(keyCustomer, testCustomer);
+        verify(persistence).setDataAttribute(keyCustomer, testCustomer);
     }
 
     @Test
     public void testInitStateDecide() {
-        final StateDecision decision = initState.decide(context, null, commandResults, persistence, communication);
+        final StateDecision decision = initState.execute(context, null, commandResults, persistence, communication);
 
         assertEquals(StateDecision.multiNextStates(TrialState.class, CancelState.class, UpdateChargeAmountState.class), decision);
     }
 
     @Test
     public void testTrialStateStart() {
-        when(persistence.getDataObject(keyCustomer, Customer.class)).thenReturn(testCustomer);
-        final CommandRequest commandRequest = trialState.start(context, null, persistence, communication);
+        when(persistence.getDataAttribute(keyCustomer, Customer.class)).thenReturn(testCustomer);
+        final CommandRequest commandRequest = trialState.waitUntil(context, null, persistence, communication);
 
         assertEquals(CommandRequest.forAllCommandCompleted(
                         TimerCommand.createByDuration(testCustomer.getSubscription().getTrialPeriod())
                 ),
                 commandRequest);
-        verify(persistence).getDataObject(keyCustomer, Customer.class);
+        verify(persistence).getDataAttribute(keyCustomer, Customer.class);
     }
 
     @Test
     public void testTrialStateDecide() {
-        final StateDecision decision = trialState.decide(context, null, commandResults, persistence, communication);
+        final StateDecision decision = trialState.execute(context, null, commandResults, persistence, communication);
 
         assertEquals(StateDecision.singleNextState(ChargeCurrentBillState.class), decision);
-        verify(persistence).setDataObject(keyBillingPeriodNum, 0);
+        verify(persistence).setDataAttribute(keyBillingPeriodNum, 0);
     }
 
     @Test
     public void testChargeCurrentBillStateStart_waitForDuration() {
-        when(persistence.getDataObject(keyCustomer, Customer.class)).thenReturn(testCustomer);
-        when(persistence.getDataObject(keyBillingPeriodNum, Integer.class)).thenReturn(0);
+        when(persistence.getDataAttribute(keyCustomer, Customer.class)).thenReturn(testCustomer);
+        when(persistence.getDataAttribute(keyBillingPeriodNum, Integer.class)).thenReturn(0);
 
-        final CommandRequest commandRequest = chargeCurrentBillState.start(context, null, persistence, communication);
+        final CommandRequest commandRequest = chargeCurrentBillState.waitUntil(context, null, persistence, communication);
         assertEquals(CommandRequest.forAllCommandCompleted(
                 TimerCommand.createByDuration(testCustomer.getSubscription().getBillingPeriod())
         ), commandRequest);
-        verify(persistence).getDataObject(keyCustomer, Customer.class);
-        verify(persistence).getDataObject(keyBillingPeriodNum, Integer.class);
-        verify(persistence).setDataObject(keyBillingPeriodNum, 1);
+        verify(persistence).getDataAttribute(keyCustomer, Customer.class);
+        verify(persistence).getDataAttribute(keyBillingPeriodNum, Integer.class);
+        verify(persistence).setDataAttribute(keyBillingPeriodNum, 1);
     }
 
     @Test
     public void testChargeCurrentBillStateStart_subscriptionOver() {
-        when(persistence.getDataObject(keyCustomer, Customer.class)).thenReturn(testCustomer);
-        when(persistence.getDataObject(keyBillingPeriodNum, Integer.class)).thenReturn(testCustomer.getSubscription().getMaxBillingPeriods());
+        when(persistence.getDataAttribute(keyCustomer, Customer.class)).thenReturn(testCustomer);
+        when(persistence.getDataAttribute(keyBillingPeriodNum, Integer.class)).thenReturn(testCustomer.getSubscription().getMaxBillingPeriods());
 
-        final CommandRequest commandRequest = chargeCurrentBillState.start(context, null, persistence, communication);
+        final CommandRequest commandRequest = chargeCurrentBillState.waitUntil(context, null, persistence, communication);
         assertEquals(CommandRequest.empty, commandRequest);
 
-        verify(persistence).getDataObject(keyCustomer, Customer.class);
-        verify(persistence).getDataObject(keyBillingPeriodNum, Integer.class);
-        verify(persistence).setStateLocal(subscriptionOverKey, true);
+        verify(persistence).getDataAttribute(keyCustomer, Customer.class);
+        verify(persistence).getDataAttribute(keyBillingPeriodNum, Integer.class);
+        verify(persistence).setStateExecutionLocal(subscriptionOverKey, true);
     }
 
     @Test
     public void testChargeCurrentBillStateDecide_subscriptionNotOver() {
-        when(persistence.getDataObject(keyCustomer, Customer.class)).thenReturn(testCustomer);
-        when(persistence.getStateLocal(subscriptionOverKey, Boolean.class)).thenReturn(null);
+        when(persistence.getDataAttribute(keyCustomer, Customer.class)).thenReturn(testCustomer);
+        when(persistence.getStateExecutionLocal(subscriptionOverKey, Boolean.class)).thenReturn(null);
 
-        final StateDecision decision = chargeCurrentBillState.decide(context, null, commandResults, persistence, communication);
+        final StateDecision decision = chargeCurrentBillState.execute(context, null, commandResults, persistence, communication);
         assertEquals(StateDecision.singleNextState(ChargeCurrentBillState.class), decision);
 
-        verify(persistence).getDataObject(keyCustomer, Customer.class);
-        verify(persistence).getStateLocal(subscriptionOverKey, Boolean.class);
+        verify(persistence).getDataAttribute(keyCustomer, Customer.class);
+        verify(persistence).getStateExecutionLocal(subscriptionOverKey, Boolean.class);
         verify(myService).chargeUser(testCustomer.getEmail(), testCustomer.getId(), testCustomer.getSubscription().getBillingPeriodCharge());
     }
 
     @Test
     public void testChargeCurrentBillStateDecide_subscriptionOver() {
-        when(persistence.getDataObject(keyCustomer, Customer.class)).thenReturn(testCustomer);
-        when(persistence.getStateLocal(subscriptionOverKey, Boolean.class)).thenReturn(true);
+        when(persistence.getDataAttribute(keyCustomer, Customer.class)).thenReturn(testCustomer);
+        when(persistence.getStateExecutionLocal(subscriptionOverKey, Boolean.class)).thenReturn(true);
 
-        final StateDecision decision = chargeCurrentBillState.decide(context, null, commandResults, persistence, communication);
+        final StateDecision decision = chargeCurrentBillState.execute(context, null, commandResults, persistence, communication);
         assertEquals(StateDecision.forceCompleteWorkflow(), decision);
 
-        verify(persistence).getDataObject(keyCustomer, Customer.class);
-        verify(persistence).getStateLocal(subscriptionOverKey, Boolean.class);
+        verify(persistence).getDataAttribute(keyCustomer, Customer.class);
+        verify(persistence).getStateExecutionLocal(subscriptionOverKey, Boolean.class);
         verify(myService).sendEmail(any(), any(), any());
     }
 
     @Test
     public void testUpdateChargeAmountStateStart() {
-        final CommandRequest commandRequest = updateChargeAmountState.start(context, null, persistence, communication);
+        final CommandRequest commandRequest = updateChargeAmountState.waitUntil(context, null, persistence, communication);
 
         assertEquals(CommandRequest.forAllCommandCompleted(
                         SignalCommand.create(signalUpdateBillingPeriodCharge)
@@ -175,10 +175,10 @@ public class SubscriptionWorkflowTest {
 
     @Test
     public void testUpdateChargeAmountStateDecide() {
-        when(persistence.getDataObject(keyCustomer, Customer.class)).thenReturn(testCustomer);
+        when(persistence.getDataAttribute(keyCustomer, Customer.class)).thenReturn(testCustomer);
         when(commandResults.getSignalValueByIndex(0)).thenReturn(200);
 
-        final StateDecision decision = updateChargeAmountState.decide(context, null, commandResults, persistence, communication);
+        final StateDecision decision = updateChargeAmountState.execute(context, null, commandResults, persistence, communication);
 
         assertEquals(StateDecision.singleNextState(UpdateChargeAmountState.class), decision);
 
@@ -186,14 +186,14 @@ public class SubscriptionWorkflowTest {
         final Customer updatedCustomer = ImmutableCustomer.copyOf(testCustomer)
                 .withSubscription(updatedSubscription);
 
-        verify(persistence).setDataObject(keyCustomer, updatedCustomer);
-        verify(persistence).getDataObject(keyCustomer, Customer.class);
+        verify(persistence).setDataAttribute(keyCustomer, updatedCustomer);
+        verify(persistence).getDataAttribute(keyCustomer, Customer.class);
         verify(commandResults).getSignalValueByIndex(0);
     }
 
     @Test
     public void testCancelStateStart() {
-        final CommandRequest commandRequest = cancelState.start(context, null, persistence, communication);
+        final CommandRequest commandRequest = cancelState.waitUntil(context, null, persistence, communication);
 
         assertEquals(CommandRequest.forAllCommandCompleted(
                         SignalCommand.create(signalCancelSubscription)
@@ -203,11 +203,11 @@ public class SubscriptionWorkflowTest {
 
     @Test
     public void testCancelStateDecide() {
-        when(persistence.getDataObject(keyCustomer, Customer.class)).thenReturn(testCustomer);
-        final StateDecision decision = cancelState.decide(context, null, commandResults, persistence, communication);
+        when(persistence.getDataAttribute(keyCustomer, Customer.class)).thenReturn(testCustomer);
+        final StateDecision decision = cancelState.execute(context, null, commandResults, persistence, communication);
 
         assertEquals(StateDecision.forceCompleteWorkflow(), decision);
 
-        verify(persistence).getDataObject(keyCustomer, Customer.class);
+        verify(persistence).getDataAttribute(keyCustomer, Customer.class);
     }
 }

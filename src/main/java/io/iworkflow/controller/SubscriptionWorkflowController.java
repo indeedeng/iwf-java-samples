@@ -1,6 +1,8 @@
 package io.iworkflow.controller;
 
 import io.iworkflow.core.Client;
+import io.iworkflow.core.ImmutableWorkflowOptions;
+import io.iworkflow.gen.models.WorkflowConfig;
 import io.iworkflow.workflow.subscription.SubscriptionWorkflow;
 import io.iworkflow.workflow.subscription.model.Customer;
 import io.iworkflow.workflow.subscription.model.ImmutableCustomer;
@@ -40,12 +42,18 @@ public class SubscriptionWorkflowController {
                         ImmutableSubscription.builder()
                                 .trialPeriod(Duration.ofSeconds(20))
                                 .billingPeriod(Duration.ofSeconds(10))
-                                .maxBillingPeriods(10)
+                                .maxBillingPeriods(0) // support unlimited periods because of auto continueAsNew in IWF
                                 .billingPeriodCharge(100)
                                 .build()
                 )
                 .build();
-        final String runId = client.startWorkflow(SubscriptionWorkflow.class, wfId, 3600, customer);
+        final String runId = client.startWorkflow(SubscriptionWorkflow.class, wfId, 3600, customer,
+                ImmutableWorkflowOptions.builder()
+                        .workflowConfigOverride(
+                                // set lower threshold to demo auto continueAsNew
+                                new WorkflowConfig().continueAsNewThreshold(10)
+                        )
+                        .build());
 
         return ResponseEntity.ok(String.format("workflowId: %s: runId: %s", wfId, runId));
     }
