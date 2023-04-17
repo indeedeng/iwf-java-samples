@@ -6,9 +6,9 @@ import org.immutables.value.Value;
 @Value.Immutable
 @JsonDeserialize(as = ImmutableEngagementInput.class)
 public abstract class EngagementInput {
-    public abstract String getProposeUserId();
+    public abstract String getEmployerId();
 
-    public abstract String getTargetUserId();
+    public abstract String getJobSeekerId();
 
     public abstract String getNotes();
 }

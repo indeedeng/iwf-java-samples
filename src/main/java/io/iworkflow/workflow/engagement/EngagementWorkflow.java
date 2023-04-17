@@ -46,8 +46,8 @@ public class EngagementWorkflow implements ObjectWorkflow {
         );
     }
 
-    public static final String SA_KEY_PROPOSE_USER_ID = "ProposeUserId";
-    public static final String SA_KEY_TARGET_USER_ID = "TargetUserId";
+    public static final String SA_KEY_EMPLOYER_ID = "ProposeUserId";
+    public static final String SA_KEY_JOB_SEEKER_ID = "TargetUserId";
     public static final String SA_KEY_STATUS = "EngagementStatus";
     public static final String SA_KEY_LAST_UPDATE_TIMESTAMP = "LastUpdateTimeMillis";
 
@@ -59,8 +59,8 @@ public class EngagementWorkflow implements ObjectWorkflow {
     @Override
     public List<PersistenceFieldDef> getPersistenceSchema() {
         return Arrays.asList(
-                SearchAttributeDef.create(SearchAttributeValueType.KEYWORD, SA_KEY_PROPOSE_USER_ID),
-                SearchAttributeDef.create(SearchAttributeValueType.KEYWORD, SA_KEY_TARGET_USER_ID),
+                SearchAttributeDef.create(SearchAttributeValueType.KEYWORD, SA_KEY_EMPLOYER_ID),
+                SearchAttributeDef.create(SearchAttributeValueType.KEYWORD, SA_KEY_JOB_SEEKER_ID),
                 SearchAttributeDef.create(SearchAttributeValueType.KEYWORD, SA_KEY_STATUS),
                 SearchAttributeDef.create(SearchAttributeValueType.INT, SA_KEY_LAST_UPDATE_TIMESTAMP),
 
@@ -115,15 +115,15 @@ public class EngagementWorkflow implements ObjectWorkflow {
     public EngagementDescription describe(Context context, Persistence persistence, Communication communication) {
         // Note that a readOnly RPC will not write any event to history
         final String currentStatus = persistence.getSearchAttributeKeyword(SA_KEY_STATUS);
-        final String proposeUserId = persistence.getSearchAttributeKeyword(SA_KEY_PROPOSE_USER_ID);
-        final String targetUserId = persistence.getSearchAttributeKeyword(SA_KEY_TARGET_USER_ID);
+        final String employerId = persistence.getSearchAttributeKeyword(SA_KEY_EMPLOYER_ID);
+        final String jobSeekerId = persistence.getSearchAttributeKeyword(SA_KEY_JOB_SEEKER_ID);
 
         String currentNotes = persistence.getDataAttribute(DA_KEY_NOTES, String.class);
 
         return ImmutableEngagementDescription.builder()
                 .currentStatus(Status.valueOf(currentStatus))
-                .proposeUserId(proposeUserId)
-                .targetUserId(targetUserId)
+                .employerId(employerId)
+                .jobSeekerId(jobSeekerId)
                 .notes(currentNotes)
                 .build();
     }
@@ -138,8 +138,8 @@ class InitState implements WorkflowState<EngagementInput> {
 
     @Override
     public StateDecision execute(final Context context, final EngagementInput input, final CommandResults commandResults, final Persistence persistence, final Communication communication) {
-        persistence.setSearchAttributeKeyword(SA_KEY_PROPOSE_USER_ID, input.getProposeUserId());
-        persistence.setSearchAttributeKeyword(SA_KEY_TARGET_USER_ID, input.getTargetUserId());
+        persistence.setSearchAttributeKeyword(SA_KEY_EMPLOYER_ID, input.getEmployerId());
+        persistence.setSearchAttributeKeyword(SA_KEY_JOB_SEEKER_ID, input.getJobSeekerId());
         persistence.setSearchAttributeKeyword(SA_KEY_STATUS, Status.INITIATED.name());
         persistence.setSearchAttributeInt64(SA_KEY_LAST_UPDATE_TIMESTAMP, System.currentTimeMillis());
 
@@ -209,7 +209,7 @@ class ReminderState implements WorkflowState<Void> {
 
             return StateDecision.gracefulCompleteWorkflow();
         }
-        final String targetUserId = persistence.getSearchAttributeKeyword(SA_KEY_TARGET_USER_ID);
+        final String targetUserId = persistence.getSearchAttributeKeyword(SA_KEY_JOB_SEEKER_ID);
         this.myService.sendEmail(targetUserId, "Reminder:xxx please respond", "Hello xxx, ...");
 
         // go back to the loop
@@ -232,8 +232,8 @@ class NotifyExternalSystemState implements WorkflowState<Status> {
 
     @Override
     public StateDecision execute(final Context context, final Status status, final CommandResults commandResults, final Persistence persistence, final Communication communication) {
-        final String proposeUserId = persistence.getSearchAttributeKeyword(SA_KEY_PROPOSE_USER_ID);
-        final String targetUserId = persistence.getSearchAttributeKeyword(SA_KEY_TARGET_USER_ID);
+        final String proposeUserId = persistence.getSearchAttributeKeyword(SA_KEY_EMPLOYER_ID);
+        final String targetUserId = persistence.getSearchAttributeKeyword(SA_KEY_JOB_SEEKER_ID);
         // Note that this API will fail for a few times until success
         this.myService.updateExternalSystem("engagement from prosing user " + proposeUserId + " to target user " + targetUserId + " is now in status: " + status.name());
         return StateDecision.DEAD_END;

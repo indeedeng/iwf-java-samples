@@ -26,14 +26,14 @@ public class EngagementWorkflowController {
 
     @GetMapping("/start")
     public ResponseEntity<String> start(
-            @RequestParam(defaultValue = "test-proposer") String proposeUserId,
-            @RequestParam(defaultValue = "test-target-user") String targetUserId,
+            @RequestParam(defaultValue = "test-employer") String employerId,
+            @RequestParam(defaultValue = "test-jobseeker") String jobSeekerId,
             @RequestParam(defaultValue = "test-notes") String notes
     ) {
         final String wfId = "engagement_test_id_" + System.currentTimeMillis() / 1000;
         final EngagementInput input = ImmutableEngagementInput.builder()
-                .proposeUserId(proposeUserId)
-                .targetUserId(targetUserId)
+                .employerId(employerId)
+                .jobSeekerId(jobSeekerId)
                 .notes(notes)
                 .build();
         final String runId = client.startWorkflow(EngagementWorkflow.class, wfId, 3600, input);
