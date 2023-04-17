@@ -12,6 +12,12 @@ _Note that by default this project will listen on 8803 port
 
 ## Product Use case samples
 
+### Engagement workflow
+
+This [Engagement](https://github.com/indeedeng/iwf-java-samples/tree/main/src/main/java/io/iworkflow/workflow/engagement) how to build an engagement workflow.
+
+
+
 ### Subscription workflow
 
 This [Subscription](https://github.com/indeedeng/iwf-java-samples/tree/main/src/main/java/io/iworkflow/workflow/subscription)
@@ -23,4 +29,5 @@ This use case is also described in:
 * [Temporal Java Sample](https://github.com/temporalio/subscription-workflow-project-template-java)
 * [Cadence Java example](https://cadenceworkflow.io/docs/concepts/workflows/#example)
 
-In additional, iWF provides "Auto-ContinueAsNew feature to allow running the workflow infinitely 
+In additional, iWF provides "Auto-ContinueAsNew feature to allow running the workflow infinitely
+
