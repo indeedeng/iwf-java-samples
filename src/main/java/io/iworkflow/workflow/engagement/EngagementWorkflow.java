@@ -10,11 +10,7 @@ import io.iworkflow.core.WorkflowState;
 import io.iworkflow.core.command.CommandRequest;
 import io.iworkflow.core.command.CommandResults;
 import io.iworkflow.core.command.TimerCommand;
-import io.iworkflow.core.communication.Communication;
-import io.iworkflow.core.communication.CommunicationMethodDef;
-import io.iworkflow.core.communication.SignalChannelDef;
-import io.iworkflow.core.communication.SignalCommand;
-import io.iworkflow.core.communication.SignalCommandResult;
+import io.iworkflow.core.communication.*;
 import io.iworkflow.core.persistence.DataAttributeDef;
 import io.iworkflow.core.persistence.Persistence;
 import io.iworkflow.core.persistence.PersistenceFieldDef;
@@ -24,36 +20,27 @@ import io.iworkflow.gen.models.RetryPolicy;
 import io.iworkflow.gen.models.SearchAttributeValueType;
 import io.iworkflow.gen.models.WorkflowStateOptions;
 import io.iworkflow.workflow.MyDependencyService;
-import io.iworkflow.workflow.engagement.model.EngagementDescription;
-import io.iworkflow.workflow.engagement.model.EngagementInput;
-import io.iworkflow.workflow.engagement.model.ImmutableEngagementDescription;
-import io.iworkflow.workflow.engagement.model.Status;
+import io.iworkflow.workflow.engagement.model.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
 
-import static io.iworkflow.workflow.engagement.EngagementWorkflow.DA_KEY_NOTES;
-import static io.iworkflow.workflow.engagement.EngagementWorkflow.SA_KEY_LAST_UPDATE_TIMESTAMP;
-import static io.iworkflow.workflow.engagement.EngagementWorkflow.SA_KEY_PROPOSE_USER_ID;
-import static io.iworkflow.workflow.engagement.EngagementWorkflow.SA_KEY_STATUS;
-import static io.iworkflow.workflow.engagement.EngagementWorkflow.SA_KEY_TARGET_USER_ID;
+import static io.iworkflow.workflow.engagement.EngagementWorkflow.*;
 
 @Component
 public class EngagementWorkflow implements ObjectWorkflow {
 
+    @Autowired
     private MyDependencyService myService;
-
-    // myService will be injected by Spring
-    public EngagementWorkflow(MyDependencyService myService) {
-        this.myService = myService;
-    }
 
     @Override
     public List<StateDef> getWorkflowStates() {
         return Arrays.asList(
                 StateDef.startingState(new InitState()),
+                StateDef.nonStartingState(new ProcessTimeoutState()),
                 StateDef.nonStartingState(new ReminderState(myService)),
                 StateDef.nonStartingState(new NotifyExternalSystemState(myService))
         );
@@ -64,10 +51,11 @@ public class EngagementWorkflow implements ObjectWorkflow {
     public static final String SA_KEY_STATUS = "Status";
     public static final String SA_KEY_LAST_UPDATE_TIMESTAMP = "LastUpdateTimeMillis";
 
-    public static final String DA_KEY_NOTES = "Notes";
-
     public static final String SIGNAL_NAME_OPT_OUT_REMINDER = "OptOutReminder";
 
+    public static final String INTERNAL_CHANNEL_COMPLETE_PROCESS = "CompleteProcess";
+
+    public static final String DA_KEY_NOTES = "Notes";
     @Override
     public List<PersistenceFieldDef> getPersistenceSchema() {
         return Arrays.asList(
@@ -83,7 +71,8 @@ public class EngagementWorkflow implements ObjectWorkflow {
     @Override
     public List<CommunicationMethodDef> getCommunicationSchema() {
         return Arrays.asList(
-                SignalChannelDef.create(Void.class, SIGNAL_NAME_OPT_OUT_REMINDER)
+                SignalChannelDef.create(Void.class, SIGNAL_NAME_OPT_OUT_REMINDER),
+                InternalChannelDef.create(Void.class, INTERNAL_CHANNEL_COMPLETE_PROCESS)
         );
     }
 
@@ -116,6 +105,7 @@ public class EngagementWorkflow implements ObjectWorkflow {
         communication.triggerStateMovements(
                 StateMovement.create(NotifyExternalSystemState.class, Status.DECLINED)
         );
+        communication.publishInternalChannel(INTERNAL_CHANNEL_COMPLETE_PROCESS, null);
 
         String currentNotes = persistence.getDataAttribute(DA_KEY_NOTES, String.class);
         persistence.setDataAttribute(DA_KEY_NOTES, currentNotes + ";" + notes);
@@ -123,15 +113,18 @@ public class EngagementWorkflow implements ObjectWorkflow {
 
     @RPC
     public EngagementDescription describe(Context context, Persistence persistence, Communication communication) {
+        // Note that a readOnly RPC will not write any event to history
         final String currentStatus = persistence.getSearchAttributeKeyword(SA_KEY_STATUS);
-        String currentNotes = persistence.getDataAttribute(DA_KEY_NOTES, String.class);
         final String proposeUserId = persistence.getSearchAttributeKeyword(SA_KEY_PROPOSE_USER_ID);
         final String targetUserId = persistence.getSearchAttributeKeyword(SA_KEY_TARGET_USER_ID);
+
+        String currentNotes = persistence.getDataAttribute(DA_KEY_NOTES, String.class);
+
         return ImmutableEngagementDescription.builder()
                 .currentStatus(Status.valueOf(currentStatus))
-                .notes(currentNotes)
                 .proposeUserId(proposeUserId)
                 .targetUserId(targetUserId)
+                .notes(currentNotes)
                 .build();
     }
 }
@@ -151,13 +144,35 @@ class InitState implements WorkflowState<EngagementInput> {
         persistence.setSearchAttributeInt64(SA_KEY_LAST_UPDATE_TIMESTAMP, System.currentTimeMillis());
 
         persistence.setDataAttribute(DA_KEY_NOTES, input.getNotes());
+
         return StateDecision.multiNextStates(
+                StateMovement.create(ProcessTimeoutState.class),
                 StateMovement.create(ReminderState.class),
                 StateMovement.create(NotifyExternalSystemState.class, Status.INITIATED)
         );
     }
 }
 
+class ProcessTimeoutState implements WorkflowState<Void> {
+
+    @Override
+    public Class<Void> getInputType() {
+        return Void.class;
+    }
+
+    @Override
+    public CommandRequest waitUntil(Context context, Void input, Persistence persistence, Communication communication) {
+        return CommandRequest.forAnyCommandCompleted(
+                TimerCommand.createByDuration(Duration.ofHours(2)), // use 2 hours to simulate 2 months
+                InternalChannelCommand.create(INTERNAL_CHANNEL_COMPLETE_PROCESS) // complete the process after accepted
+        );
+    }
+
+    @Override
+    public StateDecision execute(Context context, Void input, CommandResults commandResults, Persistence persistence, Communication communication) {
+        return StateDecision.forceCompleteWorkflow("done");
+    }
+}
 class ReminderState implements WorkflowState<Void> {
 
     private MyDependencyService myService;
@@ -174,7 +189,7 @@ class ReminderState implements WorkflowState<Void> {
     @Override
     public CommandRequest waitUntil(final Context context, final Void input, final Persistence persistence, final Communication communication) {
         return CommandRequest.forAnyCommandCompleted(
-                TimerCommand.createByDuration(Duration.ofSeconds(24)), // use 24 seconds to simulate 24 hours
+                TimerCommand.createByDuration(Duration.ofSeconds(4)), // use 24 seconds to simulate 24 hours
                 SignalCommand.create(EngagementWorkflow.SIGNAL_NAME_OPT_OUT_REMINDER) // user can choose to opt out
         );
     }
@@ -183,12 +198,16 @@ class ReminderState implements WorkflowState<Void> {
     public StateDecision execute(final Context context, final Void input, final CommandResults commandResults, final Persistence persistence, final Communication communication) {
         final String currentStatus = persistence.getSearchAttributeKeyword(SA_KEY_STATUS);
         if (!currentStatus.equals(Status.INITIATED.name())) {
-            return StateDecision.gracefulCompleteWorkflow("done");
+            return StateDecision.gracefulCompleteWorkflow();
         }
 
         final SignalCommandResult optOutSignalResult = commandResults.getAllSignalCommandResults().get(0);
         if (optOutSignalResult.getSignalRequestStatusEnum() == ChannelRequestStatus.RECEIVED) {
-            return StateDecision.gracefulCompleteWorkflow("opt-out email");
+
+            String currentNotes = persistence.getDataAttribute(DA_KEY_NOTES, String.class);
+            persistence.setDataAttribute(DA_KEY_NOTES, currentNotes + ";" + "User optout reminder");
+
+            return StateDecision.gracefulCompleteWorkflow();
         }
         final String targetUserId = persistence.getSearchAttributeKeyword(SA_KEY_TARGET_USER_ID);
         this.myService.sendEmail(targetUserId, "Reminder:xxx please respond", "Hello xxx, ...");
@@ -216,7 +235,7 @@ class NotifyExternalSystemState implements WorkflowState<Status> {
         final String proposeUserId = persistence.getSearchAttributeKeyword(SA_KEY_PROPOSE_USER_ID);
         final String targetUserId = persistence.getSearchAttributeKeyword(SA_KEY_TARGET_USER_ID);
         // Note that this API will fail for a few times until success
-        this.myService.notifyExternalSystem("engagement from prosing user " + proposeUserId + " to target user " + targetUserId + " is now in status: " + status.name());
+        this.myService.updateExternalSystem("engagement from prosing user " + proposeUserId + " to target user " + targetUserId + " is now in status: " + status.name());
         return StateDecision.DEAD_END;
     }
 

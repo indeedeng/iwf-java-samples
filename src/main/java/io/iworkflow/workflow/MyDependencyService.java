@@ -8,15 +8,15 @@ import org.springframework.stereotype.Component;
 @Component
 public class MyDependencyService {
 
-    private int notifiedExternalCounter = 0;
+    private int updateExternalCounter = 0;
 
-    public void notifyExternalSystem(final String message) {
-        if (notifiedExternalCounter++ <= 2) {
+    public void updateExternalSystem(final String message) {
+        if (updateExternalCounter++ <= 2) {
             throw new RuntimeException("hey this is an error when calling external system, you should retry it");
         } else {
-            notifiedExternalCounter = 0;
+            updateExternalCounter = 0;
         }
-        System.out.printf("notifying external system(like sending Kafka message): %s", message);
+        System.out.printf("update external system(like via RPC, or sending Kafka message or database): %s", message);
     }
 
     public void sendEmail(final String recipient, final String subject, final String content) {
