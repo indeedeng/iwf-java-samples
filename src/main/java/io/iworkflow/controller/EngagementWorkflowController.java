@@ -1,6 +1,7 @@
 package io.iworkflow.controller;
 
 import io.iworkflow.core.Client;
+import io.iworkflow.gen.models.WorkflowSearchResponse;
 import io.iworkflow.workflow.engagement.EngagementWorkflow;
 import io.iworkflow.workflow.engagement.model.EngagementDescription;
 import io.iworkflow.workflow.engagement.model.EngagementInput;
@@ -24,12 +25,16 @@ public class EngagementWorkflowController {
     }
 
     @GetMapping("/start")
-    public ResponseEntity<String> start() {
+    public ResponseEntity<String> start(
+            @RequestParam(defaultValue = "test-proposer") String proposeUserId,
+            @RequestParam(defaultValue = "test-target-user") String targetUserId,
+            @RequestParam(defaultValue = "test-notes") String notes
+    ) {
         final String wfId = "engagement_test_id_" + System.currentTimeMillis() / 1000;
         final EngagementInput input = ImmutableEngagementInput.builder()
-                .proposeUserId("test-proposer")
-                .targetUserId("test-target-user")
-                .notes("test-notes")
+                .proposeUserId(proposeUserId)
+                .targetUserId(targetUserId)
+                .notes(notes)
                 .build();
         final String runId = client.startWorkflow(EngagementWorkflow.class, wfId, 3600, input);
 
@@ -74,5 +79,20 @@ public class EngagementWorkflowController {
         client.invokeRPC(rpcStub::accept, notes);
 
         return ResponseEntity.ok("accepted");
+    }
+
+    @GetMapping("/list")
+    public ResponseEntity<WorkflowSearchResponse> list(
+            @RequestParam String query
+    ) {
+        if (query.startsWith("'")){
+            query = query.substring(1, query.length()-1);
+        }
+        System.out.println("got query for search: "+query);
+        // this is just a shortcut for demo for how flexible the search can be
+        // in real world you may want to provide some search patterns like listByProposeUserId+status etc
+        WorkflowSearchResponse response = client.searchWorkflow(query, 1000);
+
+        return ResponseEntity.ok(response);
     }
 }

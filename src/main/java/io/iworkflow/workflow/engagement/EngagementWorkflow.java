@@ -48,7 +48,7 @@ public class EngagementWorkflow implements ObjectWorkflow {
 
     public static final String SA_KEY_PROPOSE_USER_ID = "ProposeUserId";
     public static final String SA_KEY_TARGET_USER_ID = "TargetUserId";
-    public static final String SA_KEY_STATUS = "Status";
+    public static final String SA_KEY_STATUS = "EngagementStatus";
     public static final String SA_KEY_LAST_UPDATE_TIMESTAMP = "LastUpdateTimeMillis";
 
     public static final String SIGNAL_NAME_OPT_OUT_REMINDER = "OptOutReminder";
