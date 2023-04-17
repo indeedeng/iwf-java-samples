@@ -12,6 +12,12 @@ _Note that by default this project will listen on 8803 port
 
 ## Product Use case samples
 
+### Engagement workflow
+
+This [Engagement](https://github.com/indeedeng/iwf-java-samples/tree/main/src/main/java/io/iworkflow/workflow/engagement) how to build an engagement workflow.
+
+
+
 ### Subscription workflow
 
 This [Subscription](https://github.com/indeedeng/iwf-java-samples/tree/main/src/main/java/io/iworkflow/workflow/subscription)
@@ -25,12 +31,3 @@ This use case is also described in:
 
 In additional, iWF provides "Auto-ContinueAsNew feature to allow running the workflow infinitely
 
-tctl adm cl asa -n ProposeUserId -t Keyword
-tctl adm cl asa -n TargetUserId -t Keyword
-tctl adm cl asa -n Status -t Keyword
-tctl adm cl asa -n LastUpdateTimeMillis -t Int
-
-tctl search-attribute create -name ProposeUserId -type Keyword -y
-tctl search-attribute create -name TargetUserId -type Keyword -y
-tctl search-attribute create -name Status -type Keyword -y
-tctl search-attribute create -name LastUpdateTimeMillis -type Int -y
