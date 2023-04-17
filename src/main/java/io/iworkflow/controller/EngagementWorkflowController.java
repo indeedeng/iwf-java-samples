@@ -90,7 +90,7 @@ public class EngagementWorkflowController {
         }
         System.out.println("got query for search: "+query);
         // this is just a shortcut for demo for how flexible the search can be
-        // in real world you may want to provide some search patterns like listByProposeUserId+status etc
+        // in real world you may want to provide some search patterns like listByEmployerId+status etc
         WorkflowSearchResponse response = client.searchWorkflow(query, 1000);
 
         return ResponseEntity.ok(response);

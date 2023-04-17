@@ -9,9 +9,9 @@ How to test the APIs in browser:
 * decline API: http://localhost:8803/engagement/decline?workflowId=<TODO>&notes=%22not%20interested%22
 * accept API: http://localhost:8803/engagement/accept?workflowId=<TODO>&notes=%27accept%27
 * search API, use queries like:
-  * ['ProposeUserId="test-employer" ORDER BY LastUpdateTimeMillis '](http://localhost:8803/engagement/list?query=<TODO>)
-  * ['ProposeUserId="test-employer"'](http://localhost:8803/engagement/list?query=<TODO>)
-  * ['ProposeUserId="test-employer" AND EngagementStatus="INITIATED"'](http://localhost:8803/engagement/list?query=<TODO>)
+  * ['EmployerId="test-employer" ORDER BY LastUpdateTimeMillis '](http://localhost:8803/engagement/list?query=<TODO>)
+  * ['EmployerId="test-employer"'](http://localhost:8803/engagement/list?query=<TODO>)
+  * ['EmployerId="test-employer" AND EngagementStatus="INITIATED"'](http://localhost:8803/engagement/list?query=<TODO>)
   * etc
 ### Search attribute requirement
 

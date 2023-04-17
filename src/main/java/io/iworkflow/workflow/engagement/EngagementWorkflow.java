@@ -46,8 +46,8 @@ public class EngagementWorkflow implements ObjectWorkflow {
         );
     }
 
-    public static final String SA_KEY_EMPLOYER_ID = "ProposeUserId";
-    public static final String SA_KEY_JOB_SEEKER_ID = "TargetUserId";
+    public static final String SA_KEY_EMPLOYER_ID = "EmployerId";
+    public static final String SA_KEY_JOB_SEEKER_ID = "JobSeekerId";
     public static final String SA_KEY_STATUS = "EngagementStatus";
     public static final String SA_KEY_LAST_UPDATE_TIMESTAMP = "LastUpdateTimeMillis";
 
@@ -209,8 +209,8 @@ class ReminderState implements WorkflowState<Void> {
 
             return StateDecision.gracefulCompleteWorkflow();
         }
-        final String targetUserId = persistence.getSearchAttributeKeyword(SA_KEY_JOB_SEEKER_ID);
-        this.myService.sendEmail(targetUserId, "Reminder:xxx please respond", "Hello xxx, ...");
+        final String jobSeekerId = persistence.getSearchAttributeKeyword(SA_KEY_JOB_SEEKER_ID);
+        this.myService.sendEmail(jobSeekerId, "Reminder:xxx please respond", "Hello xxx, ...");
 
         // go back to the loop
         return StateDecision.singleNextState(ReminderState.class);
@@ -232,10 +232,10 @@ class NotifyExternalSystemState implements WorkflowState<Status> {
 
     @Override
     public StateDecision execute(final Context context, final Status status, final CommandResults commandResults, final Persistence persistence, final Communication communication) {
-        final String proposeUserId = persistence.getSearchAttributeKeyword(SA_KEY_EMPLOYER_ID);
-        final String targetUserId = persistence.getSearchAttributeKeyword(SA_KEY_JOB_SEEKER_ID);
+        final String employerId = persistence.getSearchAttributeKeyword(SA_KEY_EMPLOYER_ID);
+        final String jobSeekerId = persistence.getSearchAttributeKeyword(SA_KEY_JOB_SEEKER_ID);
         // Note that this API will fail for a few times until success
-        this.myService.updateExternalSystem("engagement from prosing user " + proposeUserId + " to target user " + targetUserId + " is now in status: " + status.name());
+        this.myService.updateExternalSystem("notify engagement from employer " + employerId + " to jobSeeker " + jobSeekerId + " for status: " + status.name());
         return StateDecision.DEAD_END;
     }
 
