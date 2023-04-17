@@ -8,6 +8,7 @@ import io.iworkflow.core.command.TimerCommand;
 import io.iworkflow.core.communication.Communication;
 import io.iworkflow.core.communication.SignalCommand;
 import io.iworkflow.core.persistence.Persistence;
+import io.iworkflow.workflow.MyDependencyService;
 import io.iworkflow.workflow.subscription.model.Customer;
 import io.iworkflow.workflow.subscription.model.ImmutableCustomer;
 import io.iworkflow.workflow.subscription.model.ImmutableSubscription;
@@ -33,7 +34,7 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 public class SubscriptionWorkflowTest {
     @Mock
-    private MyService myService;
+    private MyDependencyService myService;
 
     @Mock
     private Context context;

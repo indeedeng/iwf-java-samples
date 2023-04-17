@@ -24,7 +24,7 @@ import static io.iworkflow.core.WorkerService.WORKFLOW_STATE_START_API_PATH;
 import static io.iworkflow.core.WorkerService.WORKFLOW_WORKER_RPC_API_PATH;
 
 @Controller
-@RequestMapping
+@RequestMapping("/worker")
 public class IwfWorkerApiController {
 
     private final WorkerService workerService;

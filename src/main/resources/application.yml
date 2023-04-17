@@ -7,6 +7,6 @@ spring:
 
 iwf:
   worker:
-    url: http://localhost:8803
+    url: http://localhost:8803/worker
   server:
     url: http://localhost:8801

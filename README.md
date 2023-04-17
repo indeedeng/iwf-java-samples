@@ -23,4 +23,14 @@ This use case is also described in:
 * [Temporal Java Sample](https://github.com/temporalio/subscription-workflow-project-template-java)
 * [Cadence Java example](https://cadenceworkflow.io/docs/concepts/workflows/#example)
 
-In additional, iWF provides "Auto-ContinueAsNew feature to allow running the workflow infinitely 
+In additional, iWF provides "Auto-ContinueAsNew feature to allow running the workflow infinitely
+
+tctl adm cl asa -n ProposeUserId -t Keyword
+tctl adm cl asa -n TargetUserId -t Keyword
+tctl adm cl asa -n Status -t Keyword
+tctl adm cl asa -n LastUpdateTimeMillis -t Int
+
+tctl search-attribute create -name ProposeUserId -type Keyword -y
+tctl search-attribute create -name TargetUserId -type Keyword -y
+tctl search-attribute create -name Status -type Keyword -y
+tctl search-attribute create -name LastUpdateTimeMillis -type Int -y

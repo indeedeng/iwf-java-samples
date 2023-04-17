@@ -32,7 +32,7 @@ public class SubscriptionWorkflowController {
 
     @GetMapping("/start")
     public ResponseEntity<String> start() {
-        final String wfId = "subscription-test-id" + System.currentTimeMillis() / 1000;
+        final String wfId = "subscription_test_id_" + System.currentTimeMillis() / 1000;
         final Customer customer = ImmutableCustomer.builder()
                 .firstName("Quanzheng")
                 .lastName("Long")

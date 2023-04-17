@@ -15,6 +15,7 @@ import io.iworkflow.core.communication.SignalCommand;
 import io.iworkflow.core.persistence.DataAttributeDef;
 import io.iworkflow.core.persistence.Persistence;
 import io.iworkflow.core.persistence.PersistenceFieldDef;
+import io.iworkflow.workflow.MyDependencyService;
 import io.iworkflow.workflow.subscription.model.Customer;
 import io.iworkflow.workflow.subscription.model.ImmutableCustomer;
 import io.iworkflow.workflow.subscription.model.ImmutableSubscription;
@@ -32,9 +33,9 @@ import static io.iworkflow.workflow.subscription.SubscriptionWorkflow.signalUpda
 @Component
 public class SubscriptionWorkflow implements ObjectWorkflow {
 
-    private MyService myService;
+    private MyDependencyService myService;
 
-    public SubscriptionWorkflow(MyService myService) {
+    public SubscriptionWorkflow(MyDependencyService myService) {
         this.myService = myService;
     }
 
@@ -94,9 +95,9 @@ class InitState implements WorkflowState<Customer> {
 
 class TrialState implements WorkflowState<Void> {
 
-    private MyService myService;
+    private MyDependencyService myService;
 
-    TrialState(MyService myService) {
+    TrialState(MyDependencyService myService) {
         this.myService = myService;
     }
 
@@ -124,9 +125,9 @@ class TrialState implements WorkflowState<Void> {
 
 class ChargeCurrentBillState implements WorkflowState<Void> {
 
-    private MyService myService;
+    private MyDependencyService myService;
 
-    ChargeCurrentBillState(MyService myService) {
+    ChargeCurrentBillState(MyDependencyService myService) {
         this.myService = myService;
     }
 
@@ -202,9 +203,9 @@ class UpdateChargeAmountState implements WorkflowState<Void> {
 
 class CancelState implements WorkflowState<Void> {
 
-    private MyService myService;
+    private MyDependencyService myService;
 
-    CancelState(final MyService myService) {
+    CancelState(final MyDependencyService myService) {
         this.myService = myService;
     }
 
