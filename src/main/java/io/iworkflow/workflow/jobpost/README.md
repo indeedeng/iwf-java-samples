@@ -12,6 +12,7 @@ How to test the APIs in browser:
     * ['Title="software" AND JobDescription="Seattle" ORDER BY LastUpdateTimeMillis '](http://localhost:8803/engagement/list?query='Title="software"
       AND JobDescription="Seattle" ORDER BY LastUpdateTimeMillis ')
     * etc
+* soft delete API: http://localhost:8803/jobpost/delete?workflowId=<TODO>
 
 ### Search attribute requirement
 

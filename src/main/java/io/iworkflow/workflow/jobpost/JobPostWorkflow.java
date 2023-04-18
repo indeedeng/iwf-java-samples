@@ -25,8 +25,7 @@ public class JobPostWorkflow implements ObjectWorkflow {
     @Override
     public List<StateDef> getWorkflowStates() {
         return Arrays.asList(
-                StateDef.nonStartingState(new ExternalUpdateState()),
-                StateDef.nonStartingState(new ClosingState())
+                StateDef.nonStartingState(new ExternalUpdateState())
         );
     }
 
@@ -60,14 +59,6 @@ public class JobPostWorkflow implements ObjectWorkflow {
 
         persistence.setDataAttribute(DA_KEY_NOTES, input.getNotes());
     }
-
-    @RPC
-    public void close(Context context, Persistence persistence, Communication communication) {
-        communication.triggerStateMovements(
-                StateMovement.create(ClosingState.class)
-        );
-    }
-
 }
 
 class ExternalUpdateState implements WorkflowState<Void> {
@@ -81,19 +72,5 @@ class ExternalUpdateState implements WorkflowState<Void> {
     public StateDecision execute(final Context context, final Void input, final CommandResults commandResults, final Persistence persistence, final Communication communication) {
         System.out.println("in executeInBackground");
         return StateDecision.deadEnd();
-    }
-}
-
-class ClosingState implements WorkflowState<Void> {
-
-    @Override
-    public Class<Void> getInputType() {
-        return Void.class;
-    }
-
-    @Override
-    public StateDecision execute(final Context context, final Void input, final CommandResults commandResults, final Persistence persistence, final Communication communication) {
-        System.out.println("closing workflow, it will be deleted after retention");
-        return StateDecision.gracefulCompleteWorkflow();
     }
 }

@@ -30,6 +30,7 @@ how to build an JobPost system like Indeed.com
 * Create a job with tile, description and notes
 * Update a job, which trigger a background action to update external system
 * Search for a job using full-text search
+* Delete a job
 
 ### Subscription workflow
 
