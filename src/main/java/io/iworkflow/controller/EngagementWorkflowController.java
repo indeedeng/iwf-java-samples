@@ -85,10 +85,10 @@ public class EngagementWorkflowController {
     public ResponseEntity<WorkflowSearchResponse> list(
             @RequestParam String query
     ) {
-        if (query.startsWith("'")){
-            query = query.substring(1, query.length()-1);
+        if (query.startsWith("'")) {
+            query = query.substring(1, query.length() - 1);
         }
-        System.out.println("got query for search: "+query);
+        System.out.println("got query for search: " + query);
         // this is just a shortcut for demo for how flexible the search can be
         // in real world you may want to provide some search patterns like listByEmployerId+status etc
         WorkflowSearchResponse response = client.searchWorkflow(query, 1000);
