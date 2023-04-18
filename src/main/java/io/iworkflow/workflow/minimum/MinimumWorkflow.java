@@ -69,7 +69,7 @@ class DeadEndState implements WorkflowState<Void> {
     @Override
     public StateDecision execute(final Context context, final Void input, final CommandResults commandResults, final Persistence persistence, final Communication communication) {
         System.out.println("in executeInBackground");
-        return StateDecision.DEAD_END;
+        return StateDecision.deadEnd();
     }
 }
 

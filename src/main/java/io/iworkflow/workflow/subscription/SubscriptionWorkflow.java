@@ -20,6 +20,7 @@ import io.iworkflow.workflow.subscription.model.Customer;
 import io.iworkflow.workflow.subscription.model.ImmutableCustomer;
 import io.iworkflow.workflow.subscription.model.ImmutableSubscription;
 import io.iworkflow.workflow.subscription.model.Subscription;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
@@ -33,12 +34,9 @@ import static io.iworkflow.workflow.subscription.SubscriptionWorkflow.signalUpda
 @Component
 public class SubscriptionWorkflow implements ObjectWorkflow {
 
+    @Autowired
     private MyDependencyService myService;
-
-    public SubscriptionWorkflow(MyDependencyService myService) {
-        this.myService = myService;
-    }
-
+    
     public static final String keyBillingPeriodNum = "billingPeriodNum";
     public static final String keyCustomer = "customer";
 

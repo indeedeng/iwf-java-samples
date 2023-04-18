@@ -10,7 +10,13 @@ import io.iworkflow.core.WorkflowState;
 import io.iworkflow.core.command.CommandRequest;
 import io.iworkflow.core.command.CommandResults;
 import io.iworkflow.core.command.TimerCommand;
-import io.iworkflow.core.communication.*;
+import io.iworkflow.core.communication.Communication;
+import io.iworkflow.core.communication.CommunicationMethodDef;
+import io.iworkflow.core.communication.InternalChannelCommand;
+import io.iworkflow.core.communication.InternalChannelDef;
+import io.iworkflow.core.communication.SignalChannelDef;
+import io.iworkflow.core.communication.SignalCommand;
+import io.iworkflow.core.communication.SignalCommandResult;
 import io.iworkflow.core.persistence.DataAttributeDef;
 import io.iworkflow.core.persistence.Persistence;
 import io.iworkflow.core.persistence.PersistenceFieldDef;
@@ -20,7 +26,10 @@ import io.iworkflow.gen.models.RetryPolicy;
 import io.iworkflow.gen.models.SearchAttributeValueType;
 import io.iworkflow.gen.models.WorkflowStateOptions;
 import io.iworkflow.workflow.MyDependencyService;
-import io.iworkflow.workflow.engagement.model.*;
+import io.iworkflow.workflow.engagement.model.EngagementDescription;
+import io.iworkflow.workflow.engagement.model.EngagementInput;
+import io.iworkflow.workflow.engagement.model.ImmutableEngagementDescription;
+import io.iworkflow.workflow.engagement.model.Status;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -28,7 +37,12 @@ import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
 
-import static io.iworkflow.workflow.engagement.EngagementWorkflow.*;
+import static io.iworkflow.workflow.engagement.EngagementWorkflow.DA_KEY_NOTES;
+import static io.iworkflow.workflow.engagement.EngagementWorkflow.INTERNAL_CHANNEL_COMPLETE_PROCESS;
+import static io.iworkflow.workflow.engagement.EngagementWorkflow.SA_KEY_EMPLOYER_ID;
+import static io.iworkflow.workflow.engagement.EngagementWorkflow.SA_KEY_JOB_SEEKER_ID;
+import static io.iworkflow.workflow.engagement.EngagementWorkflow.SA_KEY_LAST_UPDATE_TIMESTAMP;
+import static io.iworkflow.workflow.engagement.EngagementWorkflow.SA_KEY_STATUS;
 
 @Component
 public class EngagementWorkflow implements ObjectWorkflow {
@@ -56,6 +70,7 @@ public class EngagementWorkflow implements ObjectWorkflow {
     public static final String INTERNAL_CHANNEL_COMPLETE_PROCESS = "CompleteProcess";
 
     public static final String DA_KEY_NOTES = "Notes";
+
     @Override
     public List<PersistenceFieldDef> getPersistenceSchema() {
         return Arrays.asList(
@@ -173,6 +188,7 @@ class ProcessTimeoutState implements WorkflowState<Void> {
         return StateDecision.forceCompleteWorkflow("done");
     }
 }
+
 class ReminderState implements WorkflowState<Void> {
 
     private MyDependencyService myService;
@@ -236,7 +252,7 @@ class NotifyExternalSystemState implements WorkflowState<Status> {
         final String jobSeekerId = persistence.getSearchAttributeKeyword(SA_KEY_JOB_SEEKER_ID);
         // Note that this API will fail for a few times until success
         this.myService.updateExternalSystem("notify engagement from employer " + employerId + " to jobSeeker " + jobSeekerId + " for status: " + status.name());
-        return StateDecision.DEAD_END;
+        return StateDecision.deadEnd();
     }
 
     /**

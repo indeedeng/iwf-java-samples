@@ -19,8 +19,8 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
-import static io.iworkflow.core.WorkerService.WORKFLOW_STATE_DECIDE_API_PATH;
-import static io.iworkflow.core.WorkerService.WORKFLOW_STATE_START_API_PATH;
+import static io.iworkflow.core.WorkerService.WORKFLOW_STATE_EXECUTE_API_PATH;
+import static io.iworkflow.core.WorkerService.WORKFLOW_STATE_WAIT_UNTIL_API_PATH;
 import static io.iworkflow.core.WorkerService.WORKFLOW_WORKER_RPC_API_PATH;
 
 @Controller
@@ -33,19 +33,19 @@ public class IwfWorkerApiController {
         this.workerService = workerService;
     }
 
-    @PostMapping(WORKFLOW_STATE_START_API_PATH)
+    @PostMapping(WORKFLOW_STATE_WAIT_UNTIL_API_PATH)
     public ResponseEntity<WorkflowStateWaitUntilResponse> handleWorkflowStateWaitUntil(
             final @RequestBody WorkflowStateWaitUntilRequest request
     ) {
-        WorkflowStateWaitUntilResponse body = workerService.handleWorkflowStateStart(request);
+        WorkflowStateWaitUntilResponse body = workerService.handleWorkflowStateWaitUntil(request);
         return ResponseEntity.ok(body);
     }
 
-    @PostMapping(WORKFLOW_STATE_DECIDE_API_PATH)
+    @PostMapping(WORKFLOW_STATE_EXECUTE_API_PATH)
     public ResponseEntity<WorkflowStateExecuteResponse> apiV1WorkflowStateDecidePost(
             final @RequestBody WorkflowStateExecuteRequest request
     ) {
-        return ResponseEntity.ok(workerService.handleWorkflowStateDecide(request));
+        return ResponseEntity.ok(workerService.handleWorkflowStateExecute(request));
     }
 
     @PostMapping(WORKFLOW_WORKER_RPC_API_PATH)
