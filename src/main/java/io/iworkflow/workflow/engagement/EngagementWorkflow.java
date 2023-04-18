@@ -214,7 +214,7 @@ class ReminderState implements WorkflowState<Void> {
     public StateDecision execute(final Context context, final Void input, final CommandResults commandResults, final Persistence persistence, final Communication communication) {
         final String currentStatus = persistence.getSearchAttributeKeyword(SA_KEY_STATUS);
         if (!currentStatus.equals(Status.INITIATED.name())) {
-            return StateDecision.gracefulCompleteWorkflow();
+            return StateDecision.deadEnd();
         }
 
         final SignalCommandResult optOutSignalResult = commandResults.getAllSignalCommandResults().get(0);
@@ -223,7 +223,7 @@ class ReminderState implements WorkflowState<Void> {
             String currentNotes = persistence.getDataAttribute(DA_KEY_NOTES, String.class);
             persistence.setDataAttribute(DA_KEY_NOTES, currentNotes + ";" + "User optout reminder");
 
-            return StateDecision.gracefulCompleteWorkflow();
+            return StateDecision.deadEnd();
         }
         final String jobSeekerId = persistence.getSearchAttributeKeyword(SA_KEY_JOB_SEEKER_ID);
         this.myService.sendEmail(jobSeekerId, "Reminder:xxx please respond", "Hello xxx, ...");
