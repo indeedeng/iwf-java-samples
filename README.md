@@ -14,13 +14,22 @@ _Note that by default this project will listen on 8803 port
 
 ### Engagement workflow
 
-This [Engagement](https://github.com/indeedeng/iwf-java-samples/tree/main/src/main/java/io/iworkflow/workflow/engagement) how to build an jobSeeker engagement workflow.
+This [Engagement](https://github.com/indeedeng/iwf-java-samples/tree/main/src/main/java/io/iworkflow/workflow/engagement)
+how to build an jobSeeker engagement workflow.
 
-* An engagement is initiated by an employer to reach out to a jobSeeker(via email/SMS/etc) 
+* An engagement is initiated by an employer to reach out to a jobSeeker(via email/SMS/etc)
 * The jobSeeker could respond with decline or accept
 * If jobSeeker doesn't respond, it will get reminder
 * An engagement can change from declined to accepted, but cannot change from accepted to declined
 
+### Job Post System
+
+This [Engagement](https://github.com/indeedeng/iwf-java-samples/tree/main/src/main/java/io/iworkflow/workflow/jobpost)
+how to build an JobPost system like Indeed.com
+
+* Create a job with tile, description and notes
+* Update a job, which trigger a background action to update external system
+* Search for a job using full-text search
 
 ### Subscription workflow
 

@@ -8,7 +8,7 @@ How to test the APIs in browser:
     * It will return the workflowId which can be used in subsequence API calls.
 * update API: http://localhost:8803/jobpost/update?workflowId=<TODO>&title="Senior Software Engineer"&description="in
   Portland"&notes=testnotes
-* search API, use queries like:
+* search API, Title and Description can be used as full-text searching. Try queries like:
     * ['Title="software" AND JobDescription="Seattle" ORDER BY LastUpdateTimeMillis '](http://localhost:8803/engagement/list?query='Title="software"
       AND JobDescription="Seattle" ORDER BY LastUpdateTimeMillis ')
     * etc
