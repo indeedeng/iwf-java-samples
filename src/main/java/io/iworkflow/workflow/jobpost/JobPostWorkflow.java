@@ -29,12 +29,6 @@ public class JobPostWorkflow implements ObjectWorkflow {
         );
     }
 
-    public static final String SA_KEY_JOB_DESCRIPTION = "JobDescription";
-    public static final String SA_KEY_TITLE = "Title";
-    public static final String SA_KEY_LAST_UPDATE_TIMESTAMP = "LastUpdateTimeMillis";
-
-    public static final String DA_KEY_NOTES = "Notes";
-
     @Override
     public List<PersistenceFieldDef> getPersistenceSchema() {
         return Arrays.asList(
@@ -59,6 +53,12 @@ public class JobPostWorkflow implements ObjectWorkflow {
 
         persistence.setDataAttribute(DA_KEY_NOTES, input.getNotes());
     }
+
+    public static final String SA_KEY_JOB_DESCRIPTION = "JobDescription";
+    public static final String SA_KEY_TITLE = "Title";
+    public static final String SA_KEY_LAST_UPDATE_TIMESTAMP = "LastUpdateTimeMillis";
+
+    public static final String DA_KEY_NOTES = "Notes";
 }
 
 class ExternalUpdateState implements WorkflowState<Void> {

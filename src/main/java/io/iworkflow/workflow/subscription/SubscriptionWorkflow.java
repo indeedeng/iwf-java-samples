@@ -36,12 +36,6 @@ public class SubscriptionWorkflow implements ObjectWorkflow {
 
     @Autowired
     private MyDependencyService myService;
-    
-    public static final String keyBillingPeriodNum = "billingPeriodNum";
-    public static final String keyCustomer = "customer";
-
-    public static final String signalCancelSubscription = "cancelSubscription";
-    public static final String signalUpdateBillingPeriodCharge = "updateBillingPeriodCharge";
 
     @Override
     public List<StateDef> getWorkflowStates() {
@@ -70,6 +64,12 @@ public class SubscriptionWorkflow implements ObjectWorkflow {
                 SignalChannelDef.create(Integer.class, signalUpdateBillingPeriodCharge)
         );
     }
+
+    public static final String keyBillingPeriodNum = "billingPeriodNum";
+    public static final String keyCustomer = "customer";
+
+    public static final String signalCancelSubscription = "cancelSubscription";
+    public static final String signalUpdateBillingPeriodCharge = "updateBillingPeriodCharge";
 }
 
 class InitState implements WorkflowState<Customer> {

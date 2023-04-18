@@ -60,17 +60,6 @@ public class EngagementWorkflow implements ObjectWorkflow {
         );
     }
 
-    public static final String SA_KEY_EMPLOYER_ID = "EmployerId";
-    public static final String SA_KEY_JOB_SEEKER_ID = "JobSeekerId";
-    public static final String SA_KEY_STATUS = "EngagementStatus";
-    public static final String SA_KEY_LAST_UPDATE_TIMESTAMP = "LastUpdateTimeMillis";
-
-    public static final String SIGNAL_NAME_OPT_OUT_REMINDER = "OptOutReminder";
-
-    public static final String INTERNAL_CHANNEL_COMPLETE_PROCESS = "CompleteProcess";
-
-    public static final String DA_KEY_NOTES = "Notes";
-
     @Override
     public List<PersistenceFieldDef> getPersistenceSchema() {
         return Arrays.asList(
@@ -142,6 +131,17 @@ public class EngagementWorkflow implements ObjectWorkflow {
                 .notes(currentNotes)
                 .build();
     }
+
+    public static final String SA_KEY_EMPLOYER_ID = "EmployerId";
+    public static final String SA_KEY_JOB_SEEKER_ID = "JobSeekerId";
+    public static final String SA_KEY_STATUS = "EngagementStatus";
+    public static final String SA_KEY_LAST_UPDATE_TIMESTAMP = "LastUpdateTimeMillis";
+
+    public static final String SIGNAL_NAME_OPT_OUT_REMINDER = "OptOutReminder";
+
+    public static final String INTERNAL_CHANNEL_COMPLETE_PROCESS = "CompleteProcess";
+
+    public static final String DA_KEY_NOTES = "Notes";
 }
 
 class InitState implements WorkflowState<EngagementInput> {
