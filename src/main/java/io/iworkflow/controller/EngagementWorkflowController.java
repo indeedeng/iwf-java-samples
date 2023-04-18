@@ -36,7 +36,7 @@ public class EngagementWorkflowController {
                 .jobSeekerId(jobSeekerId)
                 .notes(notes)
                 .build();
-        final String runId = client.startWorkflow(EngagementWorkflow.class, wfId, 3600, input);
+        client.startWorkflow(EngagementWorkflow.class, wfId, 3600, input);
 
         return ResponseEntity.ok(String.format("started workflowId: %s", wfId));
     }
