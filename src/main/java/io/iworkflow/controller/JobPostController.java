@@ -27,7 +27,7 @@ public class JobPostController {
     }
 
     @GetMapping("/create")
-    public ResponseEntity<String> start(
+    public ResponseEntity<String> create(
             @RequestParam String title,
             @RequestParam String description
     ) {
@@ -74,8 +74,8 @@ public class JobPostController {
         return ResponseEntity.ok("updated");
     }
 
-    @GetMapping("/list")
-    public ResponseEntity<WorkflowSearchResponse> list(
+    @GetMapping("/search")
+    public ResponseEntity<WorkflowSearchResponse> search(
             @RequestParam String query
     ) {
         query = escapeQuote(query);
@@ -88,7 +88,7 @@ public class JobPostController {
     }
 
     @GetMapping("/delete")
-    public ResponseEntity<String> update(
+    public ResponseEntity<String> delete(
             @RequestParam String workflowId) {
         client.stopWorkflow(workflowId, "");
         return ResponseEntity.ok("marked as soft deleted, will be delete later after retention");

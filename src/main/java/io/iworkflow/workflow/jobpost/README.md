@@ -9,7 +9,7 @@ How to test the APIs in browser:
 * update API: http://localhost:8803/jobpost/update?workflowId=<TODO>&title="Senior Software Engineer"&description="in
   Portland"&notes=testnotes
 * search API, Title and Description can be used as full-text searching. Try queries like:
-    * ['Title="software" AND JobDescription="Seattle" ORDER BY LastUpdateTimeMillis '](http://localhost:8803/engagement/list?query='Title="software"
+    * ['Title="software" AND JobDescription="Seattle" ORDER BY LastUpdateTimeMillis '](http://localhost:8803/engagement/search?query='Title="software"
       AND JobDescription="Seattle" ORDER BY LastUpdateTimeMillis ')
     * etc
 * soft delete API: http://localhost:8803/jobpost/delete?workflowId=<TODO>

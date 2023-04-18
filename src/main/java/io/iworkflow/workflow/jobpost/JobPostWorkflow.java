@@ -14,6 +14,8 @@ import io.iworkflow.core.persistence.Persistence;
 import io.iworkflow.core.persistence.PersistenceFieldDef;
 import io.iworkflow.core.persistence.SearchAttributeDef;
 import io.iworkflow.gen.models.SearchAttributeValueType;
+import io.iworkflow.workflow.MyDependencyService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
@@ -22,10 +24,13 @@ import java.util.List;
 @Component
 public class JobPostWorkflow implements ObjectWorkflow {
 
+    @Autowired
+    private MyDependencyService service;
+
     @Override
     public List<StateDef> getWorkflowStates() {
         return Arrays.asList(
-                StateDef.nonStartingState(new ExternalUpdateState())
+                StateDef.nonStartingState(new ExternalUpdateState(service))
         );
     }
 
@@ -63,6 +68,12 @@ public class JobPostWorkflow implements ObjectWorkflow {
 
 class ExternalUpdateState implements WorkflowState<Void> {
 
+    private MyDependencyService service;
+
+    ExternalUpdateState(MyDependencyService service) {
+        this.service = service;
+    }
+
     @Override
     public Class<Void> getInputType() {
         return Void.class;
@@ -70,7 +81,7 @@ class ExternalUpdateState implements WorkflowState<Void> {
 
     @Override
     public StateDecision execute(final Context context, final Void input, final CommandResults commandResults, final Persistence persistence, final Communication communication) {
-        System.out.println("in executeInBackground");
+        service.updateExternalSystem("this is an update to external service");
         return StateDecision.deadEnd();
     }
 }
