@@ -4,7 +4,6 @@ import com.google.common.collect.ImmutableMap;
 import io.iworkflow.core.Client;
 import io.iworkflow.core.ImmutableWorkflowOptions;
 import io.iworkflow.gen.models.WorkflowSearchResponse;
-import io.iworkflow.workflow.engagement.EngagementWorkflow;
 import io.iworkflow.workflow.jobpost.ImmutableJobUpdateInput;
 import io.iworkflow.workflow.jobpost.JobPostWorkflow;
 import io.iworkflow.workflow.jobpost.JobUpdateInput;
@@ -33,7 +32,10 @@ public class JobPostController {
     ) {
         final String wfId = "jobpost_test_id_" + System.currentTimeMillis() / 1000;
 
-        client.startWorkflow(EngagementWorkflow.class, wfId, 3600, null,
+        title = escapeQuote(title);
+        description = escapeQuote(description);
+
+        client.startWorkflow(JobPostWorkflow.class, wfId, 3600, null,
                 ImmutableWorkflowOptions.builder()
                         .initialSearchAttribute(ImmutableMap.of(
                                 JobPostWorkflow.SA_KEY_TITLE, title,
@@ -52,6 +54,10 @@ public class JobPostController {
             @RequestParam String description,
             @RequestParam(defaultValue = "test-notes") String notes
     ) {
+        title = escapeQuote(title);
+        description = escapeQuote(description);
+        notes = escapeQuote(notes);
+
         final JobPostWorkflow rpcStub = client.newRpcStub(JobPostWorkflow.class, workflowId, "");
         JobUpdateInput input = ImmutableJobUpdateInput.builder()
                 .description(description)
@@ -60,21 +66,29 @@ public class JobPostController {
                 .build();
         client.invokeRPC(rpcStub::update, input);
 
-        return ResponseEntity.ok("declined");
+        return ResponseEntity.ok("updated");
     }
 
     @GetMapping("/list")
     public ResponseEntity<WorkflowSearchResponse> list(
             @RequestParam String query
     ) {
-        if (query.startsWith("'")) {
-            query = query.substring(1, query.length() - 1);
-        }
+        query = escapeQuote(query);
         System.out.println("got query for search: " + query);
         // this is just a shortcut for demo for how flexible the search can be
         // in real world you may want to provide some search patterns like listByEmployerId+status etc
         WorkflowSearchResponse response = client.searchWorkflow(query, 1000);
 
         return ResponseEntity.ok(response);
+    }
+
+    String escapeQuote(String input) {
+        if (input.startsWith("'")) {
+            input = input.substring(1, input.length() - 1);
+        }
+        if (input.startsWith("\"")) {
+            input = input.substring(1, input.length() - 1);
+        }
+        return input;
     }
 }

@@ -41,7 +41,7 @@ public class JobPostWorkflow implements ObjectWorkflow {
         return Arrays.asList(
 
                 SearchAttributeDef.create(SearchAttributeValueType.TEXT, SA_KEY_JOB_DESCRIPTION),
-                SearchAttributeDef.create(SearchAttributeValueType.KEYWORD, SA_KEY_TITLE),
+                SearchAttributeDef.create(SearchAttributeValueType.TEXT, SA_KEY_TITLE),
                 SearchAttributeDef.create(SearchAttributeValueType.INT, SA_KEY_LAST_UPDATE_TIMESTAMP),
 
                 DataAttributeDef.create(String.class, DA_KEY_NOTES)
@@ -53,10 +53,12 @@ public class JobPostWorkflow implements ObjectWorkflow {
         communication.triggerStateMovements(
                 StateMovement.create(ExternalUpdateState.class)
         );
-        persistence.setDataAttribute(SA_KEY_TITLE, input.getTitle());
-        persistence.setDataAttribute(SA_KEY_JOB_DESCRIPTION, input.getDescription());
-        persistence.setDataAttribute(DA_KEY_NOTES, input.getNotes());
+        persistence.setSearchAttributeText(SA_KEY_TITLE, input.getTitle());
+        persistence.setSearchAttributeText(SA_KEY_JOB_DESCRIPTION, input.getDescription());
+
         persistence.setSearchAttributeInt64(SA_KEY_LAST_UPDATE_TIMESTAMP, System.currentTimeMillis());
+
+        persistence.setDataAttribute(DA_KEY_NOTES, input.getNotes());
     }
 
     @RPC
