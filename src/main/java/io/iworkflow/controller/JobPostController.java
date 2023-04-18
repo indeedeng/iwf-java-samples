@@ -3,6 +3,7 @@ package io.iworkflow.controller;
 import com.google.common.collect.ImmutableMap;
 import io.iworkflow.core.Client;
 import io.iworkflow.core.ImmutableWorkflowOptions;
+import io.iworkflow.gen.models.WorkflowConfig;
 import io.iworkflow.gen.models.WorkflowSearchResponse;
 import io.iworkflow.workflow.jobpost.ImmutableJobUpdateInput;
 import io.iworkflow.workflow.jobpost.JobPostWorkflow;
@@ -42,6 +43,10 @@ public class JobPostController {
                                 JobPostWorkflow.SA_KEY_JOB_DESCRIPTION, description,
                                 JobPostWorkflow.SA_KEY_LAST_UPDATE_TIMESTAMP, System.currentTimeMillis() / 1000
                         ))
+                        .workflowConfigOverride(
+                                // set lower threshold to demo auto continueAsNew
+                                new WorkflowConfig().continueAsNewThreshold(10)
+                        )
                         .build());
 
         return ResponseEntity.ok(String.format("started workflowId: %s", wfId));
