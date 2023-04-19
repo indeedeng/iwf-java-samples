@@ -31,13 +31,6 @@ public class JobPostWorkflow implements ObjectWorkflow {
     private MyDependencyService service;
 
     @Override
-    public List<StateDef> getWorkflowStates() {
-        return Arrays.asList(
-                StateDef.nonStartingState(new ExternalUpdateState(service))
-        );
-    }
-
-    @Override
     public List<PersistenceFieldDef> getPersistenceSchema() {
         return Arrays.asList(
 
@@ -46,6 +39,13 @@ public class JobPostWorkflow implements ObjectWorkflow {
                 SearchAttributeDef.create(SearchAttributeValueType.INT, SA_KEY_LAST_UPDATE_TIMESTAMP),
 
                 DataAttributeDef.create(String.class, DA_KEY_NOTES)
+        );
+    }
+
+    @Override
+    public List<StateDef> getWorkflowStates() {
+        return Arrays.asList(
+                StateDef.nonStartingState(new ExternalUpdateState(service))
         );
     }
 
@@ -64,9 +64,6 @@ public class JobPostWorkflow implements ObjectWorkflow {
 
     @RPC
     public void update(Context context, JobInfo input, Persistence persistence, Communication communication) {
-        communication.triggerStateMovements(
-                StateMovement.create(ExternalUpdateState.class)
-        );
         persistence.setSearchAttributeText(SA_KEY_TITLE, input.getTitle());
         persistence.setSearchAttributeText(SA_KEY_JOB_DESCRIPTION, input.getDescription());
 
@@ -75,6 +72,9 @@ public class JobPostWorkflow implements ObjectWorkflow {
         if (input.getNotes().isPresent()) {
             persistence.setDataAttribute(DA_KEY_NOTES, input.getNotes().get());
         }
+        communication.triggerStateMovements(
+                StateMovement.create(ExternalUpdateState.class)
+        );
     }
 
     public static final String SA_KEY_JOB_DESCRIPTION = "JobDescription";

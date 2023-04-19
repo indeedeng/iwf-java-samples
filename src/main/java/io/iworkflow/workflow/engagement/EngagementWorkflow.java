@@ -107,7 +107,7 @@ public class EngagementWorkflow implements ObjectWorkflow {
         persistence.setSearchAttributeKeyword(SA_KEY_STATUS, Status.ACCEPTED.name());
         persistence.setSearchAttributeInt64(SA_KEY_LAST_UPDATE_TIMESTAMP, System.currentTimeMillis());
         communication.triggerStateMovements(
-                StateMovement.create(NotifyExternalSystemState.class, Status.DECLINED)
+                StateMovement.create(NotifyExternalSystemState.class, Status.ACCEPTED)
         );
         communication.publishInternalChannel(INTERNAL_CHANNEL_COMPLETE_PROCESS, null);
 
@@ -136,12 +136,9 @@ public class EngagementWorkflow implements ObjectWorkflow {
     public static final String SA_KEY_JOB_SEEKER_ID = "JobSeekerId";
     public static final String SA_KEY_STATUS = "EngagementStatus";
     public static final String SA_KEY_LAST_UPDATE_TIMESTAMP = "LastUpdateTimeMillis";
-
-    public static final String SIGNAL_NAME_OPT_OUT_REMINDER = "OptOutReminder";
-
-    public static final String INTERNAL_CHANNEL_COMPLETE_PROCESS = "CompleteProcess";
-
     public static final String DA_KEY_NOTES = "Notes";
+    public static final String SIGNAL_NAME_OPT_OUT_REMINDER = "OptOutReminder";
+    public static final String INTERNAL_CHANNEL_COMPLETE_PROCESS = "CompleteProcess";
 }
 
 class InitState implements WorkflowState<EngagementInput> {
@@ -178,7 +175,7 @@ class ProcessTimeoutState implements WorkflowState<Void> {
     @Override
     public CommandRequest waitUntil(Context context, Void input, Persistence persistence, Communication communication) {
         return CommandRequest.forAnyCommandCompleted(
-                TimerCommand.createByDuration(Duration.ofHours(2)), // use 2 hours to simulate 2 months
+                TimerCommand.createByDuration(Duration.ofDays(60)), // ~2 months
                 InternalChannelCommand.create(INTERNAL_CHANNEL_COMPLETE_PROCESS) // complete the process after accepted
         );
     }
@@ -205,7 +202,7 @@ class ReminderState implements WorkflowState<Void> {
     @Override
     public CommandRequest waitUntil(final Context context, final Void input, final Persistence persistence, final Communication communication) {
         return CommandRequest.forAnyCommandCompleted(
-                TimerCommand.createByDuration(Duration.ofSeconds(4)), // use 24 seconds to simulate 24 hours
+                TimerCommand.createByDuration(Duration.ofSeconds(5)), // 24 hours in real world, 5 seconds for demo
                 SignalCommand.create(EngagementWorkflow.SIGNAL_NAME_OPT_OUT_REMINDER) // user can choose to opt out
         );
     }
