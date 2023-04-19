@@ -5,9 +5,9 @@ import io.iworkflow.core.Client;
 import io.iworkflow.core.ImmutableWorkflowOptions;
 import io.iworkflow.gen.models.WorkflowConfig;
 import io.iworkflow.gen.models.WorkflowSearchResponse;
-import io.iworkflow.workflow.jobpost.ImmutableJobUpdateInput;
+import io.iworkflow.workflow.jobpost.ImmutableJobInfo;
+import io.iworkflow.workflow.jobpost.JobInfo;
 import io.iworkflow.workflow.jobpost.JobPostWorkflow;
-import io.iworkflow.workflow.jobpost.JobUpdateInput;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,7 +31,7 @@ public class JobPostController {
             @RequestParam String title,
             @RequestParam String description
     ) {
-        final String wfId = "jobpost_test_id_" + System.currentTimeMillis() / 1000;
+        final String wfId = "job_id_" + System.currentTimeMillis() / 1000;
 
         title = escapeQuote(title);
         description = escapeQuote(description);
@@ -52,6 +52,16 @@ public class JobPostController {
         return ResponseEntity.ok(String.format("started workflowId: %s", wfId));
     }
 
+    @GetMapping("/read")
+    public ResponseEntity<JobInfo> read(
+            @RequestParam String workflowId) {
+        final JobPostWorkflow rpcStub = client.newRpcStub(JobPostWorkflow.class, workflowId, "");
+
+        JobInfo jobInfo = client.invokeRPC(rpcStub::get);
+
+        return ResponseEntity.ok(jobInfo);
+    }
+
     @GetMapping("/update")
     public ResponseEntity<String> update(
             @RequestParam String workflowId,
@@ -64,7 +74,7 @@ public class JobPostController {
         notes = escapeQuote(notes);
 
         final JobPostWorkflow rpcStub = client.newRpcStub(JobPostWorkflow.class, workflowId, "");
-        JobUpdateInput input = ImmutableJobUpdateInput.builder()
+        JobInfo input = ImmutableJobInfo.builder()
                 .description(description)
                 .title(title)
                 .notes(notes)
@@ -72,6 +82,13 @@ public class JobPostController {
         client.invokeRPC(rpcStub::update, input);
 
         return ResponseEntity.ok("updated");
+    }
+
+    @GetMapping("/delete")
+    public ResponseEntity<String> delete(
+            @RequestParam String workflowId) {
+        client.stopWorkflow(workflowId, "");
+        return ResponseEntity.ok("marked as soft deleted, will be delete later after retention");
     }
 
     @GetMapping("/search")
@@ -85,13 +102,6 @@ public class JobPostController {
         WorkflowSearchResponse response = client.searchWorkflow(query, 1000);
 
         return ResponseEntity.ok(response);
-    }
-
-    @GetMapping("/delete")
-    public ResponseEntity<String> delete(
-            @RequestParam String workflowId) {
-        client.stopWorkflow(workflowId, "");
-        return ResponseEntity.ok("marked as soft deleted, will be delete later after retention");
     }
 
     String escapeQuote(String input) {

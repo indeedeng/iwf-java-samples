@@ -20,6 +20,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 @Component
 public class JobPostWorkflow implements ObjectWorkflow {
@@ -47,7 +48,20 @@ public class JobPostWorkflow implements ObjectWorkflow {
     }
 
     @RPC
-    public void update(Context context, JobUpdateInput input, Persistence persistence, Communication communication) {
+    public JobInfo get(Context context, Persistence persistence, Communication communication) {
+        String title = persistence.getSearchAttributeText(SA_KEY_TITLE);
+        String description = persistence.getSearchAttributeText(SA_KEY_JOB_DESCRIPTION);
+        String notes = persistence.getDataAttribute(DA_KEY_NOTES, String.class);
+
+        return ImmutableJobInfo.builder()
+                .title(title)
+                .description(description)
+                .notes(Optional.ofNullable(notes))
+                .build();
+    }
+
+    @RPC
+    public void update(Context context, JobInfo input, Persistence persistence, Communication communication) {
         communication.triggerStateMovements(
                 StateMovement.create(ExternalUpdateState.class)
         );
@@ -56,7 +70,9 @@ public class JobPostWorkflow implements ObjectWorkflow {
 
         persistence.setSearchAttributeInt64(SA_KEY_LAST_UPDATE_TIMESTAMP, System.currentTimeMillis());
 
-        persistence.setDataAttribute(DA_KEY_NOTES, input.getNotes());
+        if (input.getNotes().isPresent()) {
+            persistence.setDataAttribute(DA_KEY_NOTES, input.getNotes().get());
+        }
     }
 
     public static final String SA_KEY_JOB_DESCRIPTION = "JobDescription";

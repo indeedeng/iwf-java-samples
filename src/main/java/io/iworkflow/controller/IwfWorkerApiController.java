@@ -72,6 +72,8 @@ public class IwfWorkerApiController {
         ex.printStackTrace(pw);
         String stackTrace = sw.toString(); // stack trace as a string
 
+        ex.printStackTrace();
+        
         final WorkerErrorResponse errResp = new WorkerErrorResponse()
                 .detail(ex.getMessage() + "; stack trace:" + stackTrace)
                 .errorType(ex.getClass().getName());

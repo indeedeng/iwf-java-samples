@@ -12,6 +12,23 @@ _Note that by default this project will listen on 8803 port
 
 ## Product Use case samples
 
+### Job Post System (a mini Indeed.com)
+
+See [JobPost](https://github.com/indeedeng/iwf-java-samples/tree/main/src/main/java/io/iworkflow/workflow/jobpost) for
+how to build an JobPost system like Indeed.com
+
+Support typical CRUD operations:
+
+* Create a job with tile, description and notes
+* Read a job
+* Update a job
+* Delete a job
+
+And also
+
+* Search for jobs using full-text search
+* Update will trigger a background action to update external system with eventual consistency
+
 ### Engagement workflow
 
 See [Engagement](https://github.com/indeedeng/iwf-java-samples/tree/main/src/main/java/io/iworkflow/workflow/engagement)
@@ -22,16 +39,6 @@ how to build an jobSeeker engagement workflow.
 * The jobSeeker could respond with decline or accept
 * If jobSeeker doesn't respond, it will get reminder
 * An engagement can change from declined to accepted, but cannot change from accepted to declined
-
-### Job Post System
-
-See [JobPost](https://github.com/indeedeng/iwf-java-samples/tree/main/src/main/java/io/iworkflow/workflow/jobpost) for
-how to build an JobPost system like Indeed.com
-
-* Create a job with tile, description and notes
-* Update a job, which trigger a background action to update external system
-* Search for a job using full-text search
-* Delete a job
 
 ### Subscription workflow
 
