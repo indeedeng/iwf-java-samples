@@ -13,7 +13,9 @@ import io.iworkflow.core.persistence.DataAttributeDef;
 import io.iworkflow.core.persistence.Persistence;
 import io.iworkflow.core.persistence.PersistenceFieldDef;
 import io.iworkflow.core.persistence.SearchAttributeDef;
+import io.iworkflow.gen.models.RetryPolicy;
 import io.iworkflow.gen.models.SearchAttributeValueType;
+import io.iworkflow.gen.models.WorkflowStateOptions;
 import io.iworkflow.workflow.MyDependencyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -99,5 +101,22 @@ class ExternalUpdateState implements WorkflowState<Void> {
     public StateDecision execute(final Context context, final Void input, final CommandResults commandResults, final Persistence persistence, final Communication communication) {
         service.updateExternalSystem("this is an update to external service");
         return StateDecision.deadEnd();
+    }
+
+    /**
+     * By default, all state execution will retry infinitely (until workflow timeout).
+     * This may not work for some dependency as we may want to retry for only a certain times
+     */
+    @Override
+    public WorkflowStateOptions getStateOptions() {
+        return new WorkflowStateOptions()
+                .executeApiRetryPolicy(
+                        new RetryPolicy()
+                                .backoffCoefficient(2f)
+                                .maximumAttempts(100)
+                                .maximumAttemptsDurationSeconds(3600)
+                                .initialIntervalSeconds(3)
+                                .maximumIntervalSeconds(60)
+                );
     }
 }
