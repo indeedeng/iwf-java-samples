@@ -190,7 +190,7 @@ class ProcessTimeoutState implements WorkflowState<Void> {
         final String jobSeekerId = persistence.getSearchAttributeKeyword(SA_KEY_JOB_SEEKER_ID);
 
         String status = "TIMEOUT";
-        if (currentStatus.equals(Status.ACCEPTED)) {
+        if (currentStatus.equals(Status.ACCEPTED.name())) {
             status = "ACCEPTED";
         }
         this.myService.updateExternalSystem("notify engagement from employer " + employerId + " to jobSeeker " + jobSeekerId + " for status: " + status);
