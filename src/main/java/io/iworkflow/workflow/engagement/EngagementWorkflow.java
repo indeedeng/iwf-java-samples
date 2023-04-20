@@ -54,7 +54,7 @@ public class EngagementWorkflow implements ObjectWorkflow {
     public List<StateDef> getWorkflowStates() {
         return Arrays.asList(
                 StateDef.startingState(new InitState()),
-                StateDef.nonStartingState(new ProcessTimeoutState()),
+                StateDef.nonStartingState(new ProcessTimeoutState(myService)),
                 StateDef.nonStartingState(new ReminderState(myService)),
                 StateDef.nonStartingState(new NotifyExternalSystemState(myService))
         );
@@ -106,9 +106,6 @@ public class EngagementWorkflow implements ObjectWorkflow {
 
         persistence.setSearchAttributeKeyword(SA_KEY_STATUS, Status.ACCEPTED.name());
         persistence.setSearchAttributeInt64(SA_KEY_LAST_UPDATE_TIMESTAMP, System.currentTimeMillis());
-        communication.triggerStateMovements(
-                StateMovement.create(NotifyExternalSystemState.class, Status.ACCEPTED)
-        );
         communication.publishInternalChannel(INTERNAL_CHANNEL_COMPLETE_PROCESS, null);
 
         String currentNotes = persistence.getDataAttribute(DA_KEY_NOTES, String.class);
@@ -167,6 +164,12 @@ class InitState implements WorkflowState<EngagementInput> {
 
 class ProcessTimeoutState implements WorkflowState<Void> {
 
+    private MyDependencyService myService;
+
+    ProcessTimeoutState(MyDependencyService myService) {
+        this.myService = myService;
+    }
+
     @Override
     public Class<Void> getInputType() {
         return Void.class;
@@ -182,6 +185,16 @@ class ProcessTimeoutState implements WorkflowState<Void> {
 
     @Override
     public StateDecision execute(Context context, Void input, CommandResults commandResults, Persistence persistence, Communication communication) {
+        final String currentStatus = persistence.getSearchAttributeKeyword(SA_KEY_STATUS);
+        final String employerId = persistence.getSearchAttributeKeyword(SA_KEY_EMPLOYER_ID);
+        final String jobSeekerId = persistence.getSearchAttributeKeyword(SA_KEY_JOB_SEEKER_ID);
+
+        String status = "TIMEOUT";
+        if (currentStatus.equals(Status.ACCEPTED)) {
+            status = "ACCEPTED";
+        }
+        this.myService.updateExternalSystem("notify engagement from employer " + employerId + " to jobSeeker " + jobSeekerId + " for status: " + status);
+
         return StateDecision.forceCompleteWorkflow("done");
     }
 }
