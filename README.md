@@ -12,6 +12,21 @@ _Note that by default this project will listen on 8803 port
 
 ## Product Use case samples
 
+
+### JobSeeker Engagement workflow
+<img width="709" alt="Screenshot 2023-04-21 at 8 53 25 AM" src="https://user-images.githubusercontent.com/4523955/233680837-6a6267a0-4b31-419e-87f0-667bb48582d1.png">
+
+
+See [Engagement](https://github.com/indeedeng/iwf-java-samples/tree/main/src/main/java/io/iworkflow/workflow/engagement)
+for
+how to build an jobSeeker engagement workflow.
+
+
+* An engagement is initiated by an employer to reach out to a jobSeeker(via email/SMS/etc)
+* The jobSeeker could respond with decline or accept
+* If jobSeeker doesn't respond, it will get reminder
+* An engagement can change from declined to accepted, but cannot change from accepted to declined
+
 ### Job Post System (a mini Indeed.com)
 
 See [JobPost](https://github.com/indeedeng/iwf-java-samples/tree/main/src/main/java/io/iworkflow/workflow/jobpost) for
@@ -28,17 +43,6 @@ And also
 
 * Search for jobs using full-text search
 * Update will trigger a background action to update external system with eventual consistency
-
-### Engagement workflow
-
-See [Engagement](https://github.com/indeedeng/iwf-java-samples/tree/main/src/main/java/io/iworkflow/workflow/engagement)
-for
-how to build an jobSeeker engagement workflow.
-
-* An engagement is initiated by an employer to reach out to a jobSeeker(via email/SMS/etc)
-* The jobSeeker could respond with decline or accept
-* If jobSeeker doesn't respond, it will get reminder
-* An engagement can change from declined to accepted, but cannot change from accepted to declined
 
 ### Subscription workflow
 
