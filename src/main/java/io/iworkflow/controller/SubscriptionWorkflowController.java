@@ -7,6 +7,7 @@ import io.iworkflow.workflow.subscription.SubscriptionWorkflow;
 import io.iworkflow.workflow.subscription.model.Customer;
 import io.iworkflow.workflow.subscription.model.ImmutableCustomer;
 import io.iworkflow.workflow.subscription.model.ImmutableSubscription;
+import io.iworkflow.workflow.subscription.model.Subscription;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -64,6 +65,16 @@ public class SubscriptionWorkflowController {
     ) {
         client.signalWorkflow(SubscriptionWorkflow.class, workflowId, "", signalCancelSubscription, null);
         return ResponseEntity.ok("done");
+    }
+
+    @GetMapping("/describe")
+    public ResponseEntity<Subscription> describe(
+            @RequestParam String workflowId
+    ) {
+        final SubscriptionWorkflow rpcStub = client.newRpcStub(SubscriptionWorkflow.class, workflowId, "");
+        final Subscription subscription = client.invokeRPC(rpcStub::describe);
+
+        return ResponseEntity.ok(subscription);
     }
 
     @GetMapping("/updateChargeAmount")

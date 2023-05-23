@@ -2,6 +2,7 @@ package io.iworkflow.workflow.subscription;
 
 import io.iworkflow.core.Context;
 import io.iworkflow.core.ObjectWorkflow;
+import io.iworkflow.core.RPC;
 import io.iworkflow.core.StateDecision;
 import io.iworkflow.core.StateDef;
 import io.iworkflow.core.WorkflowState;
@@ -63,6 +64,13 @@ public class SubscriptionWorkflow implements ObjectWorkflow {
                 SignalChannelDef.create(Void.class, signalCancelSubscription),
                 SignalChannelDef.create(Integer.class, signalUpdateBillingPeriodCharge)
         );
+    }
+
+    @RPC
+    public Subscription describe(Context context, Persistence persistence, Communication communication) {
+        // Note that a readOnly RPC will not write any event to history
+        final Customer customer = persistence.getDataAttribute(keyCustomer, Customer.class);
+        return customer.getSubscription();
     }
 
     public static final String keyBillingPeriodNum = "billingPeriodNum";
