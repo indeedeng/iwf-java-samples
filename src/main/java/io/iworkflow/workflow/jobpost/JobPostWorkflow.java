@@ -68,6 +68,11 @@ public class JobPostWorkflow implements ObjectWorkflow {
                 .build();
     }
 
+    @RPC(bypassCachingForStrongConsistency = true)
+    public JobInfo getWithStrongConsistency(Context context, Persistence persistence, Communication communication) {
+        return this.get(context, persistence, communication);
+    }
+
     @RPC
     public void update(Context context, JobInfo input, Persistence persistence, Communication communication) {
         persistence.setSearchAttributeText(SA_KEY_TITLE, input.getTitle());
