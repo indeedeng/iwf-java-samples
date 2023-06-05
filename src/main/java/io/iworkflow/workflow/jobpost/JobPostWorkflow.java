@@ -12,6 +12,7 @@ import io.iworkflow.core.communication.Communication;
 import io.iworkflow.core.persistence.DataAttributeDef;
 import io.iworkflow.core.persistence.Persistence;
 import io.iworkflow.core.persistence.PersistenceFieldDef;
+import io.iworkflow.core.persistence.PersistenceOptions;
 import io.iworkflow.core.persistence.SearchAttributeDef;
 import io.iworkflow.gen.models.RetryPolicy;
 import io.iworkflow.gen.models.SearchAttributeValueType;
@@ -40,6 +41,11 @@ public class JobPostWorkflow implements ObjectWorkflow {
 
                 DataAttributeDef.create(String.class, DA_KEY_NOTES)
         );
+    }
+
+    @Override
+    public PersistenceOptions getPersistenceOptions() {
+        return PersistenceOptions.builder().enableCaching(true).build();
     }
 
     @Override
