@@ -51,15 +51,15 @@ First of all, you need to register the required Search attributes
 
 If using Temporal:
 
-* New CLI
+* New CLI(Temporal)
 ```bash
-tctl search-attribute create -name EmployerId -type Keyword -y
-tctl search-attribute create -name JobSeekerId -type Keyword -y
-tctl search-attribute create -name EngagementStatus -type Keyword -y
-tctl search-attribute create -name LastUpdateTimeMillis -type Int -y
+temporal search-attribute create -name EmployerId -type Keyword -y
+temporal search-attribute create -name JobSeekerId -type Keyword -y
+temporal search-attribute create -name EngagementStatus -type Keyword -y
+temporal search-attribute create -name LastUpdateTimeMillis -type Int -y
 ```
 
-* Old CLI
+* Old CLI(tctl)
 ``` bash
 tctl adm cl asa -n EmployerId -t Keyword
 tctl adm cl asa -n JobSeekerId -t Keyword
