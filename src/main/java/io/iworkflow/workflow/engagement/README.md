@@ -63,7 +63,7 @@ temporal search-attribute create -name LastUpdateTimeMillis -type Int -y
 ``` bash
 tctl adm cl asa -n EmployerId -t Keyword
 tctl adm cl asa -n JobSeekerId -t Keyword
-tctl adm cl asa -n Status -t Keyword
+tctl adm cl asa -n EngagementStatus -t Keyword
 tctl adm cl asa -n LastUpdateTimeMillis -t Int
 
 ```
