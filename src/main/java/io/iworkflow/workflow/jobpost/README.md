@@ -19,15 +19,15 @@ How to test the APIs in browser:
 
 If using Temporal:
 
-* New CLI
+* New CLI(temporal)
 
 ```bash
-tctl search-attribute create -name Title -type Text -y
-tctl search-attribute create -name JobDescription -type Text -y
-tctl search-attribute create -name LastUpdateTimeMillis -type Int -y
+temporal search-attribute create -name Title -type Text -y
+temporal search-attribute create -name JobDescription -type Text -y
+temporal search-attribute create -name LastUpdateTimeMillis -type Int -y
 ```
 
-* Old CLI
+* Old CLI(tctl)
 
 ``` bash
 tctl adm cl asa -n Title -t Text
