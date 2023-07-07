@@ -43,7 +43,7 @@ public class ShortlistWorkflow implements ObjectWorkflow {
     @Override
     public List<StateDef> getWorkflowStates() {
         // The business logic is as follows:
-        // After an employer shortlists a candidate, we will email the candidate after 5 minutes (if the employer is in the opt-in status).
+        // After an employer shortlists a candidate, we will email the candidate after 5 minutes.
         // If the employer revokes the shortlist within the 5-minute timeframe, we will not send the email.
         return Arrays.asList(
                 StateDef.startingState(new ShortlistState()),
@@ -122,7 +122,7 @@ class SendEmailState implements WorkflowState<Void> {
             System.out.printf("Not sending the email to %s-%s because of revoking%n", employerId, candidateId);
             return StateDecision.forceCompleteWorkflow();
         }
-        
+
         myService.sendEmail(
                 employerId + "-" + candidateId,
                 String.format("Employer %s wants to know more about you", employerId),

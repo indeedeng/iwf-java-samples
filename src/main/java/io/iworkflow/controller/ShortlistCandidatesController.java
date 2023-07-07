@@ -82,8 +82,8 @@ public class ShortlistCandidatesController {
     public ResponseEntity<Boolean> isOptedIn(
             @RequestParam(defaultValue = "test-employer") String employerId
     ) {
-        final Boolean employerOptInStatus = WorkflowUtil.isOptedIn(client, employerId);
-        return ResponseEntity.ok(employerOptInStatus);
+        final Boolean isOptedIn = WorkflowUtil.isOptedIn(client, employerId);
+        return ResponseEntity.ok(isOptedIn);
     }
 
     @PostMapping("/shortlist")
@@ -136,7 +136,7 @@ public class ShortlistCandidatesController {
             if (e.getErrorSubStatus() == ErrorSubStatus.WORKFLOW_NOT_EXISTS_SUB_STATUS) {
                 return ResponseEntity.ok(String.format("No running workflow to revoke for %s", employerId + "-" + candidateId));
             }
-            throw new RuntimeException(String.format("Failed to signal with workflow %s", workflowId), e);
+            throw new RuntimeException(String.format("revokeShortlist failed with workflow %s", workflowId), e);
         }
 
         return ResponseEntity.ok(String.format("Revoked shortlist for %s", employerId + "-" + candidateId));
@@ -149,13 +149,14 @@ public class ShortlistCandidatesController {
     ) {
         final String workflowId = WorkflowUtil.buildShortlistWorkflowId(employerId, candidateId);
 
+        final ShortlistWorkflow rpcStub = client.newRpcStub(
+                ShortlistWorkflow.class,
+                workflowId,
+                ""
+        );
+
         Long timestamp;
         try {
-            final ShortlistWorkflow rpcStub = client.newRpcStub(
-                    ShortlistWorkflow.class,
-                    workflowId,
-                    ""
-            );
             timestamp = client.invokeRPC(rpcStub::getEmailSentTimestamp);
         } catch (final ClientSideException e) {
             if (e.getErrorSubStatus() == ErrorSubStatus.WORKFLOW_NOT_EXISTS_SUB_STATUS) {

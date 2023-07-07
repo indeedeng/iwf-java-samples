@@ -1,6 +1,6 @@
 # Use case
 
-In job searching and hiring websites like [Indeed](https://indeed.com/), employers can opt in for an automation workflow to enhance the possibility of establishing connections with candidates by automatically contacting shortlisted candidates.
+In job searching and hiring websites like [Indeed](https://indeed.com), employers can opt in for an automation workflow to enhance the possibility of establishing connections with candidates by automatically contacting shortlisted candidates.
 
 Once an employer shortlists a candidate as potentially hireable, the automation workflow will initiate:
 
@@ -25,7 +25,7 @@ If the employer decides to opt out, the ongoing workflow will be completed.
 Additionally, there will be a maximum of one active workflow per employer.
 
 In the shortlisting workflow, a fresh workflow will be initiated once an employer shortlists a candidate. 
-The workflow will incorporate a timer to schedule the sending of an email and can be completed at any point if the employer revoke the shortlisting.
+The workflow will incorporate a timer to schedule the sending of an email, and it can be completed without sending the email at any point if the employer revokes the shortlisting.
 
 The overall design of the workflows is as follows:
 
@@ -61,6 +61,6 @@ cadence adm cl asa --search_attr_key SHORTLIST_EmployerId --search_attr_type 1
 cadence adm cl asa --search_attr_key SHORTLIST_CandidateId --search_attr_type 1
 ```
 
-## How to test the APIs in browser
+## Test the APIs in [Postman](https://www.postman.com)
 
 * See the [ShortlistCandidatesController](https://github.com/indeedeng/iwf-java-samples/blob/main/src/main/java/io/iworkflow/controller/ShortlistCandidatesController.java).
