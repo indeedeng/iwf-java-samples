@@ -1,5 +1,6 @@
 package io.iworkflow.workflow.shortlistcandidates;
 
+import io.iworkflow.core.Client;
 import io.iworkflow.core.Context;
 import io.iworkflow.core.ObjectWorkflow;
 import io.iworkflow.core.RPC;
@@ -22,7 +23,9 @@ import io.iworkflow.gen.models.ChannelRequestStatus;
 import io.iworkflow.gen.models.SearchAttributeValueType;
 import io.iworkflow.workflow.MyDependencyService;
 import io.iworkflow.workflow.shortlistcandidates.model.ShortlistInput;
+import io.iworkflow.workflow.shortlistcandidates.utils.WorkflowUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
@@ -34,6 +37,10 @@ public class ShortlistWorkflow implements ObjectWorkflow {
 
     @Autowired
     private MyDependencyService myService;
+
+    @Lazy // Lazy is needed to resolve the circular dependency when using the client in a workflow
+    @Autowired
+    private Client client;
 
     public static final String SA_KEY_EMPLOYER_ID = "SHORTLIST_EmployerId";
     public static final String SA_KEY_CANDIDATE_ID = "SHORTLIST_CandidateId";
@@ -47,7 +54,7 @@ public class ShortlistWorkflow implements ObjectWorkflow {
         // If the employer revokes the shortlist within the 5-minute timeframe, we will not send the email.
         return Arrays.asList(
                 StateDef.startingState(new ShortlistState()),
-                StateDef.nonStartingState(new SendEmailState(myService))
+                StateDef.nonStartingState(new SendEmailState(myService, client))
         );
     }
 
@@ -93,9 +100,11 @@ class ShortlistState implements WorkflowState<ShortlistInput> {
 
 class SendEmailState implements WorkflowState<Void> {
     private MyDependencyService myService;
+    private Client client;
 
-    public SendEmailState(final MyDependencyService myService) {
+    public SendEmailState(final MyDependencyService myService, final Client client) {
         this.myService = myService;
+        this.client = client;
     }
 
     @Override
@@ -120,6 +129,13 @@ class SendEmailState implements WorkflowState<Void> {
         final SignalCommandResult revokeShortlistSignalResult = commandResults.getAllSignalCommandResults().get(0);
         if (revokeShortlistSignalResult.getSignalRequestStatusEnum() == ChannelRequestStatus.RECEIVED) {
             System.out.printf("Not sending the email to %s-%s because of revoking%n", employerId, candidateId);
+            return StateDecision.forceCompleteWorkflow();
+        }
+
+        // Check whether the employer is still in the opt-in status
+        final Boolean optedIn = WorkflowUtil.isOptedIn(client, employerId);
+        if (!optedIn) {
+            System.out.printf("Not sending the email to %s-%s because of not opted-in%n", employerId, candidateId);
             return StateDecision.forceCompleteWorkflow();
         }
 
