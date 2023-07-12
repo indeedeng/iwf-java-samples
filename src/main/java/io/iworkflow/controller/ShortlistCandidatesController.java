@@ -54,9 +54,9 @@ public class ShortlistCandidatesController {
 
     @PostMapping("/opt_out")
     public ResponseEntity<String> optOut(
-            @RequestBody Map<String, Object> requestBody
+            @RequestBody Map<String, String> requestBody
     ) {
-        final String employerId = requestBody.get("employerId").toString();
+        final String employerId = requestBody.get("employerId");
 
         final String workflowId = WorkflowUtil.buildEmployerOptInWorkflowId(employerId);
 
@@ -88,10 +88,10 @@ public class ShortlistCandidatesController {
 
     @PostMapping("/shortlist")
     public ResponseEntity<String> shortlist(
-            @RequestBody Map<String, Object> requestBody
+            @RequestBody Map<String, String> requestBody
     ) {
-        final String employerId = requestBody.get("employerId").toString();
-        final String candidateId = requestBody.get("candidateId").toString();
+        final String employerId = requestBody.get("employerId");
+        final String candidateId = requestBody.get("candidateId");
 
         // Check whether the employer has opted in
         final Boolean isOptedIn = WorkflowUtil.isOptedIn(client, employerId);
@@ -123,10 +123,10 @@ public class ShortlistCandidatesController {
 
     @PostMapping("/revoke_shortlist")
     public ResponseEntity<String> revokeShortlist(
-            @RequestBody Map<String, Object> requestBody
+            @RequestBody Map<String, String> requestBody
     ) {
-        final String employerId = requestBody.get("employerId").toString();
-        final String candidateId = requestBody.get("candidateId").toString();
+        final String employerId = requestBody.get("employerId");
+        final String candidateId = requestBody.get("candidateId");
 
         final String workflowId = WorkflowUtil.buildShortlistWorkflowId(employerId, candidateId);
 
