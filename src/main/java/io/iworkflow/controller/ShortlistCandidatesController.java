@@ -29,9 +29,9 @@ public class ShortlistCandidatesController {
 
     @PostMapping("/opt_in")
     public ResponseEntity<String> optIn(
-            @RequestBody Map<String, Object> requestBody
+            @RequestBody Map<String, String> requestBody
     ) {
-        final String employerId = requestBody.get("employerId").toString();
+        final String employerId = requestBody.get("employerId");
 
         final String workflowId = WorkflowUtil.buildEmployerOptInWorkflowId(employerId);
 
@@ -160,7 +160,7 @@ public class ShortlistCandidatesController {
             timestamp = client.invokeRPC(rpcStub::getEmailSentTimestamp);
         } catch (final ClientSideException e) {
             if (e.getErrorSubStatus() == ErrorSubStatus.WORKFLOW_NOT_EXISTS_SUB_STATUS) {
-                timestamp = 0L;
+                return ResponseEntity.notFound().build();
             } else {
                 throw new RuntimeException(String.format("getEmailSentTimestamp failed with workflow %s", workflowId), e);
             }
