@@ -57,3 +57,14 @@ for the use case also described in:
 
 In additional, iWF provides "Auto-ContinueAsNew feature to allow running the workflow infinitely
 
+### [Shortlist Candidates workflow](https://github.com/indeedeng/iwf-java-samples/tree/main/src/main/java/io/iworkflow/workflow/shortlistcandidates)
+<img width="709" alt="Candidate Shortlisting Use Case" src="src/main/java/io/iworkflow/workflow/shortlistcandidates/use_case.png">
+
+
+See [ShortlistCandidates](https://github.com/indeedeng/iwf-java-samples/tree/main/src/main/java/io/iworkflow/workflow/shortlistcandidates)
+for
+how to build a workflow to automatically establish connections with shortlisted candidates on behalf of an employer.
+
+* Design a workflow as long-term storage: leveraging the attributes of iWF to retain the employer opt-in information in [EmployerOptInWorkflow](https://github.com/indeedeng/iwf-java-samples/blob/main/src/main/java/io/iworkflow/workflow/shortlistcandidates/EmployerOptInWorkflow.java).
+* Retrieve the attributes of another workflow from within a different workflow: checking the employer's opt-in status stored in the [EmployerOptInWorkflow](https://github.com/indeedeng/iwf-java-samples/blob/main/src/main/java/io/iworkflow/workflow/shortlistcandidates/EmployerOptInWorkflow.java) when making a decision on whether to automatically contact shortlisted candidates for that employer in the [ShortlistWorkflow](https://github.com/indeedeng/iwf-java-samples/blob/main/src/main/java/io/iworkflow/workflow/shortlistcandidates/ShortlistWorkflow.java).
+
