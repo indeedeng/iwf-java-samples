@@ -1,13 +1,6 @@
 package io.iworkflow.config;
 
-import io.iworkflow.core.Client;
-import io.iworkflow.core.ClientOptions;
-import io.iworkflow.core.JacksonJsonObjectEncoder;
-import io.iworkflow.core.ObjectWorkflow;
-import io.iworkflow.core.Registry;
-import io.iworkflow.core.UnregisteredClient;
-import io.iworkflow.core.WorkerOptions;
-import io.iworkflow.core.WorkerService;
+import io.iworkflow.core.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,14 +10,13 @@ import java.util.Arrays;
 @Configuration
 public class IwfConfig {
     @Bean
-    public Registry registry(ObjectWorkflow... workflows) {
-        Registry registry = new Registry();
-        Arrays.stream(workflows).forEach(registry::addWorkflow);
-        return registry;
+    public Registry registry() {
+        return new Registry();
     }
 
     @Bean
-    public WorkerService workerService(final Registry registry) {
+    public WorkerService workerService(final Registry registry, ObjectWorkflow... workflows) {
+        Arrays.stream(workflows).forEach(registry::addWorkflow);
         return new WorkerService(registry, WorkerOptions.defaultOptions);
     }
 
