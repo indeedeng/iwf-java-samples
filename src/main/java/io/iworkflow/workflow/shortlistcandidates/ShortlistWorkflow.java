@@ -1,20 +1,10 @@
 package io.iworkflow.workflow.shortlistcandidates;
 
-import io.iworkflow.core.Client;
-import io.iworkflow.core.Context;
-import io.iworkflow.core.ObjectWorkflow;
-import io.iworkflow.core.RPC;
-import io.iworkflow.core.StateDecision;
-import io.iworkflow.core.StateDef;
-import io.iworkflow.core.WorkflowState;
+import io.iworkflow.core.*;
 import io.iworkflow.core.command.CommandRequest;
 import io.iworkflow.core.command.CommandResults;
 import io.iworkflow.core.command.TimerCommand;
-import io.iworkflow.core.communication.Communication;
-import io.iworkflow.core.communication.CommunicationMethodDef;
-import io.iworkflow.core.communication.SignalChannelDef;
-import io.iworkflow.core.communication.SignalCommand;
-import io.iworkflow.core.communication.SignalCommandResult;
+import io.iworkflow.core.communication.*;
 import io.iworkflow.core.persistence.DataAttributeDef;
 import io.iworkflow.core.persistence.Persistence;
 import io.iworkflow.core.persistence.PersistenceFieldDef;
@@ -25,7 +15,6 @@ import io.iworkflow.workflow.MyDependencyService;
 import io.iworkflow.workflow.shortlistcandidates.model.ShortlistInput;
 import io.iworkflow.workflow.shortlistcandidates.utils.WorkflowUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
@@ -38,7 +27,6 @@ public class ShortlistWorkflow implements ObjectWorkflow {
     @Autowired
     private MyDependencyService myService;
 
-    @Lazy // Lazy is needed to resolve the circular dependency when using the client in a workflow
     @Autowired
     private Client client;
 
