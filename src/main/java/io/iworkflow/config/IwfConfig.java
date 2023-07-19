@@ -5,8 +5,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.util.Arrays;
-
 @Configuration
 public class IwfConfig {
     @Bean
@@ -15,8 +13,7 @@ public class IwfConfig {
     }
 
     @Bean
-    public WorkerService workerService(final Registry registry, ObjectWorkflow... workflows) {
-        Arrays.stream(workflows).forEach(registry::addWorkflow);
+    public WorkerService workerService(final Registry registry) {
         return new WorkerService(registry, WorkerOptions.defaultOptions);
     }
 
