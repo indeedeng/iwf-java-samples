@@ -63,7 +63,7 @@ public class SubscriptionWorkflowController {
     public ResponseEntity<String> cancel(
             @RequestParam String workflowId
     ) {
-        client.signalWorkflow(SubscriptionWorkflow.class, workflowId, "", signalCancelSubscription, null);
+        client.signalWorkflow(SubscriptionWorkflow.class, workflowId, signalCancelSubscription, null);
         return ResponseEntity.ok("done");
     }
 
@@ -71,7 +71,7 @@ public class SubscriptionWorkflowController {
     public ResponseEntity<Subscription> describe(
             @RequestParam String workflowId
     ) {
-        final SubscriptionWorkflow rpcStub = client.newRpcStub(SubscriptionWorkflow.class, workflowId, "");
+        final SubscriptionWorkflow rpcStub = client.newRpcStub(SubscriptionWorkflow.class, workflowId);
         final Subscription subscription = client.invokeRPC(rpcStub::describe);
 
         return ResponseEntity.ok(subscription);
@@ -82,7 +82,7 @@ public class SubscriptionWorkflowController {
             @RequestParam String workflowId,
             @RequestParam int newChargeAmount
     ) {
-        client.signalWorkflow(SubscriptionWorkflow.class, workflowId, "", signalUpdateBillingPeriodCharge, newChargeAmount);
+        client.signalWorkflow(SubscriptionWorkflow.class, workflowId, signalUpdateBillingPeriodCharge, newChargeAmount);
         return ResponseEntity.ok("done");
     }
 }

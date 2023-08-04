@@ -20,8 +20,7 @@ public class WorkflowUtil {
 
         final EmployerOptInWorkflow rpcStub = client.newRpcStub(
                 EmployerOptInWorkflow.class,
-                workflowId,
-                ""
+                workflowId
         );
 
         try {

@@ -45,7 +45,7 @@ public class EngagementWorkflowController {
     public ResponseEntity<String> optout(
             @RequestParam String workflowId
     ) {
-        client.signalWorkflow(EngagementWorkflow.class, workflowId, "", EngagementWorkflow.SIGNAL_NAME_OPT_OUT_REMINDER, null);
+        client.signalWorkflow(EngagementWorkflow.class, workflowId, EngagementWorkflow.SIGNAL_NAME_OPT_OUT_REMINDER, null);
         return ResponseEntity.ok("done");
     }
 
@@ -54,7 +54,7 @@ public class EngagementWorkflowController {
             @RequestParam String workflowId,
             @RequestParam String notes
     ) {
-        final EngagementWorkflow rpcStub = client.newRpcStub(EngagementWorkflow.class, workflowId, "");
+        final EngagementWorkflow rpcStub = client.newRpcStub(EngagementWorkflow.class, workflowId);
         client.invokeRPC(rpcStub::decline, notes);
 
         return ResponseEntity.ok("declined");
@@ -64,7 +64,7 @@ public class EngagementWorkflowController {
     public ResponseEntity<EngagementDescription> describe(
             @RequestParam String workflowId
     ) {
-        final EngagementWorkflow rpcStub = client.newRpcStub(EngagementWorkflow.class, workflowId, "");
+        final EngagementWorkflow rpcStub = client.newRpcStub(EngagementWorkflow.class, workflowId);
         final EngagementDescription description = client.invokeRPC(rpcStub::describe);
 
         return ResponseEntity.ok(description);
@@ -75,7 +75,7 @@ public class EngagementWorkflowController {
             @RequestParam String workflowId,
             @RequestParam String notes
     ) {
-        final EngagementWorkflow rpcStub = client.newRpcStub(EngagementWorkflow.class, workflowId, "");
+        final EngagementWorkflow rpcStub = client.newRpcStub(EngagementWorkflow.class, workflowId);
         client.invokeRPC(rpcStub::accept, notes);
 
         return ResponseEntity.ok("accepted");
