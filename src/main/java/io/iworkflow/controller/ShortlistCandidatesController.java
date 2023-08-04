@@ -62,10 +62,8 @@ public class ShortlistCandidatesController {
 
         final EmployerOptInWorkflow rpcStub = client.newRpcStub(
                 EmployerOptInWorkflow.class,
-                workflowId,
-                ""
+                workflowId
         );
-
         try {
             client.invokeRPC(rpcStub::optOut);
         } catch (final ClientSideException e) {
@@ -131,7 +129,7 @@ public class ShortlistCandidatesController {
         final String workflowId = WorkflowUtil.buildShortlistWorkflowId(employerId, candidateId);
 
         try {
-            client.signalWorkflow(ShortlistWorkflow.class, workflowId, "", ShortlistWorkflow.SIGNAL_REVOKE_SHORTLIST, null);
+            client.signalWorkflow(ShortlistWorkflow.class, workflowId, ShortlistWorkflow.SIGNAL_REVOKE_SHORTLIST, null);
         } catch (final ClientSideException e) {
             if (e.getErrorSubStatus() == ErrorSubStatus.WORKFLOW_NOT_EXISTS_SUB_STATUS) {
                 return ResponseEntity.ok(String.format("No running workflow to revoke for %s", employerId + "-" + candidateId));
@@ -151,8 +149,7 @@ public class ShortlistCandidatesController {
 
         final ShortlistWorkflow rpcStub = client.newRpcStub(
                 ShortlistWorkflow.class,
-                workflowId,
-                ""
+                workflowId
         );
 
         Long timestamp;

@@ -55,7 +55,7 @@ public class JobPostController {
     @GetMapping("/read")
     public ResponseEntity<JobInfo> read(
             @RequestParam String workflowId) {
-        final JobPostWorkflow rpcStub = client.newRpcStub(JobPostWorkflow.class, workflowId, "");
+        final JobPostWorkflow rpcStub = client.newRpcStub(JobPostWorkflow.class, workflowId);
 
         JobInfo jobInfo = client.invokeRPC(rpcStub::get);
 
@@ -73,7 +73,7 @@ public class JobPostController {
         description = escapeQuote(description);
         notes = escapeQuote(notes);
 
-        final JobPostWorkflow rpcStub = client.newRpcStub(JobPostWorkflow.class, workflowId, "");
+        final JobPostWorkflow rpcStub = client.newRpcStub(JobPostWorkflow.class, workflowId);
         JobInfo input = ImmutableJobInfo.builder()
                 .description(description)
                 .title(title)
@@ -87,7 +87,7 @@ public class JobPostController {
     @GetMapping("/delete")
     public ResponseEntity<String> delete(
             @RequestParam String workflowId) {
-        client.stopWorkflow(workflowId, "");
+        client.stopWorkflow(workflowId);
         return ResponseEntity.ok("marked as soft deleted, will be delete later after retention");
     }
 

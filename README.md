@@ -1,7 +1,9 @@
 # iwf-java-samples
 
 Samples for [iWF Java SDK](https://github.com/indeedeng/iwf-java-sdk) that runs
-against [iWF server](https://github.com/indeedeng/iwf)
+against [iWF server](https://github.com/indeedeng/iwf).
+
+We also have smaller [code snippets](https://github.com/indeedeng/iwf-java-code-snippets) (also known as mini demos) that demonstrate how to utilize [iWF](https://github.com/indeedeng/iwf) to perform a minimum funcion.
 
 ## Setup
 
