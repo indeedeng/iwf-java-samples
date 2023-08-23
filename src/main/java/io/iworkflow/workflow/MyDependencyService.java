@@ -26,4 +26,20 @@ public class MyDependencyService {
     public void chargeUser(final String email, final String customerId, final int amount) {
         System.out.printf("charge user customerId[%s] email[%s] for $%d \n", customerId, email, amount);
     }
+
+    public void callAPI1(String someData) {
+        System.out.println("external API#1 is called");
+    }
+
+    public void callAPI2(String someData) {
+        System.out.println("external API#2 is called");
+    }
+
+    public void callAPI3(String someData) {
+        System.out.println("external API#3 is called");
+    }
+
+    public void callAPI4(String someData) {
+        System.out.println("external API#4 is called");
+    }
 }
