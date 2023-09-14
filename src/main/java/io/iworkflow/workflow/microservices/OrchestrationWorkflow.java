@@ -34,20 +34,20 @@ public class OrchestrationWorkflow implements ObjectWorkflow {
     public static final String DA_DATA1 = "SomeData";
     public static final String READY_SIGNAL = "Ready";
 
-    private List<StateDef> stateDefs;
+    private MyDependencyService myService;
 
     public OrchestrationWorkflow(MyDependencyService myService) {
-        this.stateDefs = Arrays.asList(
+        this.myService = myService;
+    }
+
+    @Override
+    public List<StateDef> getWorkflowStates() {
+        return Arrays.asList(
                 StateDef.startingState(new State1(myService)),
                 StateDef.nonStartingState(new State2(myService)),
                 StateDef.nonStartingState(new State3(myService)),
                 StateDef.nonStartingState(new State4(myService))
         );
-    }
-
-    @Override
-    public List<StateDef> getWorkflowStates() {
-        return stateDefs;
     }
 
     @Override
