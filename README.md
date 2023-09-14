@@ -14,6 +14,11 @@ _Note that by default this project will listen on 8803 port
 
 ## Product Use case samples
 
+### [User sign-up/registry workflow](src/main/java/io/iworkflow/workflow/signup)
+
+A [common use case](src/main/java/io/iworkflow/workflow/signup) that is almost everywhere -- new user sign-up/register a new account in a website/system.
+E.g. Amazon/Linkedin/Google/etc...
+
 ### [Microservice ochestration](https://github.com/indeedeng/iwf-java-samples/tree/main/src/main/java/io/iworkflow/workflow/microservices)
 This is the code that is [shown in iWF server as an example of microservice orchestration](https://github.com/indeedeng/iwf#example-microservice-orchestration).
 
