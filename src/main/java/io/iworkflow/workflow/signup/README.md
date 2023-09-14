@@ -31,10 +31,11 @@ With some other existing technologies, you solve it using message queue(like SQS
 
 The solution with iWF:
 <img width="752" alt="iwf solution" src="https://github.com/indeedeng/iwf-python-sdk/assets/4523955/4cec7742-a965-4a2d-868b-693ffba372fa">
-All in one single dependency
-WorkflowAsCode
-Natural to represent business
-Builtin & rich support for operation tooling
+
+* All in one single dependency
+* WorkflowAsCode
+* Natural to represent business
+* Builtin & rich support for operation tooling
 
 It's so simple & easy  to implement [business logic code in a single file](./UserSignupWorkflow.java). 
 
