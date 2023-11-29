@@ -1,6 +1,9 @@
 package io.iworkflow.workflow;
 
+import io.iworkflow.workflow.money.transfer.TransferRequest;
 import org.springframework.stereotype.Component;
+
+import java.util.Optional;
 
 /**
  * This is to demonstrate how to depend on other services in the workflow code
@@ -41,5 +44,49 @@ public class MyDependencyService {
 
     public void callAPI4(String someData) {
         System.out.println("external API#4 is called");
+    }
+
+    public boolean checkBalance(final String fromAccount, int amount) {
+        return true;
+    }
+
+    public void createDebitMemo(final String fromAccount, int amount, Optional<String> notes) {
+        // throw some errors here to test the retry and recovery mechanism
+        return;
+    }
+
+    public void debit(final String fromAccount, int amount) {
+        // throw some errors here to test the retry and recovery mechanism
+        return;
+    }
+
+    public void createCreditMemo(final String toAccount, int amount, Optional<String> notes) {
+        // throw some errors here to test the retry and recovery mechanism
+        return;
+    }
+
+    public void credit(final String toAccount, int amount) {
+        // throw some errors here to test the retry and recovery mechanism
+        return;
+    }
+
+    public void undoCreateDebitMemo(final String fromAccount, int amount, Optional<String> notes) {
+        // throw some errors here to test the retry and recovery mechanism
+        return;
+    }
+
+    public void undoDebit(final String fromAccount, int amount) {
+        // throw some errors here to test the retry and recovery mechanism
+        return;
+    }
+
+    public void undoCreateCreditMemo(final String toAccount, int amount, Optional<String> notes) {
+        // throw some errors here to test the retry and recovery mechanism
+        return;
+    }
+
+    public void undoCredit(final String toAccount, int amount) {
+        // throw some errors here to test the retry and recovery mechanism
+        return;
     }
 }

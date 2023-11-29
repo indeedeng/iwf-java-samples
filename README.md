@@ -14,6 +14,9 @@ _Note that by default this project will listen on 8803 port
 
 ## Product Use case samples
 
+### [Money transfer workflow](src/main/java/io/iworkflow/workflow/money/transfer)
+TODO add more documentation
+
 ### [User sign-up/registry workflow](src/main/java/io/iworkflow/workflow/signup)
 
 A [common use case](src/main/java/io/iworkflow/workflow/signup) that is almost everywhere -- new user sign-up/register a new account in a website/system.
