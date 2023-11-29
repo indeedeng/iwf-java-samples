@@ -2,35 +2,20 @@ package io.iworkflow.workflow.money.transfer;
 
 import io.iworkflow.core.Context;
 import io.iworkflow.core.ObjectWorkflow;
-import io.iworkflow.core.RPC;
 import io.iworkflow.core.StateDecision;
 import io.iworkflow.core.StateDef;
 import io.iworkflow.core.WorkflowState;
 import io.iworkflow.core.WorkflowStateOptionsExtension;
-import io.iworkflow.core.command.CommandRequest;
 import io.iworkflow.core.command.CommandResults;
-import io.iworkflow.core.command.TimerCommand;
 import io.iworkflow.core.communication.Communication;
-import io.iworkflow.core.communication.CommunicationMethodDef;
-import io.iworkflow.core.communication.InternalChannelCommand;
-import io.iworkflow.core.communication.InternalChannelDef;
-import io.iworkflow.core.persistence.DataAttributeDef;
 import io.iworkflow.core.persistence.Persistence;
-import io.iworkflow.core.persistence.PersistenceFieldDef;
-import io.iworkflow.gen.models.ChannelRequestStatus;
 import io.iworkflow.gen.models.RetryPolicy;
 import io.iworkflow.gen.models.WorkflowStateOptions;
 import io.iworkflow.workflow.MyDependencyService;
-import io.iworkflow.workflow.microservices.SignupForm;
 import org.springframework.stereotype.Component;
 
-import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
-
-import static io.iworkflow.workflow.signup.UserSignupWorkflow.DA_FORM;
-import static io.iworkflow.workflow.signup.UserSignupWorkflow.DA_Status;
-import static io.iworkflow.workflow.signup.UserSignupWorkflow.VERIFY_CHANNEL;
 
 @Component
 
@@ -49,7 +34,7 @@ public class MoneyTransferWorkflow implements ObjectWorkflow {
                 StateDef.nonStartingState(new DebitState(myService)),
                 StateDef.nonStartingState(new CreateCreditMemoState(myService)),
                 StateDef.nonStartingState(new CreditState(myService)),
-                StateDef.nonStartingState(new CleanupState(myService))
+                StateDef.nonStartingState(new CompensateState(myService))
         );
     }
 }
@@ -98,7 +83,7 @@ class CreateDebitMemoState implements WorkflowState<TransferRequest> {
     @Override
     public WorkflowStateOptions getStateOptions() {
         return new WorkflowStateOptionsExtension()
-                .setProceedOnExecuteFailure(CleanupState.class)
+                .setProceedOnExecuteFailure(CompensateState.class)
                 .executeApiRetryPolicy(new RetryPolicy()
                         .maximumAttemptsDurationSeconds(3600));
     }
@@ -125,7 +110,7 @@ class DebitState implements WorkflowState<TransferRequest> {
     @Override
     public WorkflowStateOptions getStateOptions() {
         return new WorkflowStateOptionsExtension()
-                .setProceedOnExecuteFailure(CleanupState.class)
+                .setProceedOnExecuteFailure(CompensateState.class)
                 .executeApiRetryPolicy(new RetryPolicy()
                         .maximumAttemptsDurationSeconds(3600));
     }
@@ -152,7 +137,7 @@ class CreateCreditMemoState implements WorkflowState<TransferRequest> {
     @Override
     public WorkflowStateOptions getStateOptions() {
         return new WorkflowStateOptionsExtension()
-                .setProceedOnExecuteFailure(CleanupState.class)
+                .setProceedOnExecuteFailure(CompensateState.class)
                 .executeApiRetryPolicy(new RetryPolicy()
                         .maximumAttemptsDurationSeconds(3600));
     }
@@ -181,16 +166,16 @@ class CreditState implements WorkflowState<TransferRequest> {
     @Override
     public WorkflowStateOptions getStateOptions() {
         return new WorkflowStateOptionsExtension()
-                .setProceedOnExecuteFailure(CleanupState.class)
+                .setProceedOnExecuteFailure(CompensateState.class)
                 .executeApiRetryPolicy(new RetryPolicy()
                         .maximumAttemptsDurationSeconds(3600));
     }
 }
 
-class CleanupState implements WorkflowState<TransferRequest> {
+class CompensateState implements WorkflowState<TransferRequest> {
     private MyDependencyService myService;
 
-    public CleanupState(final MyDependencyService myService) {
+    public CompensateState(final MyDependencyService myService) {
         this.myService = myService;
     }
 
@@ -201,10 +186,11 @@ class CleanupState implements WorkflowState<TransferRequest> {
 
     @Override
     public StateDecision execute(final Context context, final TransferRequest request, final CommandResults commandResults, Persistence persistence, final Communication communication) {
-        myService.undoCreateDebitMemo(request.getFromAccountId(), request.getAmount(), request.getNotes());
-        myService.undoDebit(request.getFromAccountId(), request.getAmount());
-        myService.undoCreateCreditMemo(request.getToAccountId(), request.getAmount(), request.getNotes());
         myService.undoCredit(request.getToAccountId(), request.getAmount());
+        myService.undoCreateCreditMemo(request.getToAccountId(), request.getAmount(), request.getNotes());
+        myService.undoDebit(request.getFromAccountId(), request.getAmount());
+        myService.undoCreateDebitMemo(request.getFromAccountId(), request.getAmount(), request.getNotes());
+
         return StateDecision.forceFailWorkflow("failed to transfer money");
     }
 
