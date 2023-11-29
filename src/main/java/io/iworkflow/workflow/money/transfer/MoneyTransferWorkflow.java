@@ -186,6 +186,9 @@ class CompensateState implements WorkflowState<TransferRequest> {
 
     @Override
     public StateDecision execute(final Context context, final TransferRequest request, final CommandResults commandResults, Persistence persistence, final Communication communication) {
+        // NOTE: to improve, we can use iWF data attributes to track whether each step has been attempted to execute
+        // and check a flag to see if we should undo it or not
+
         myService.undoCredit(request.getToAccountId(), request.getAmount());
         myService.undoCreateCreditMemo(request.getToAccountId(), request.getAmount(), request.getNotes());
         myService.undoDebit(request.getFromAccountId(), request.getAmount());
