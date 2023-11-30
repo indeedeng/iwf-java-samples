@@ -77,6 +77,10 @@ class CreateDebitMemoState implements WorkflowState<TransferRequest> {
     @Override
     public StateDecision execute(final Context context, final TransferRequest request, final CommandResults commandResults, Persistence persistence, final Communication communication) {
         myService.createDebitMemo(request.getFromAccountId(), request.getAmount(), request.getNotes());
+        // uncomment to test the error case
+        // if (true) {
+        //     throw new RuntimeException("test error case");
+        // }
         return StateDecision.singleNextState(DebitState.class, request);
     }
 
@@ -86,6 +90,8 @@ class CreateDebitMemoState implements WorkflowState<TransferRequest> {
                 .setProceedOnExecuteFailure(CompensateState.class)
                 .executeApiRetryPolicy(new RetryPolicy()
                         .maximumAttemptsDurationSeconds(3600));
+        // NOTE: for demo purposes, setting this to 3 seconds
+        //.maximumAttemptsDurationSeconds(3));
     }
 }
 

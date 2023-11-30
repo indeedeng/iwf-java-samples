@@ -14,8 +14,9 @@ _Note that by default this project will listen on 8803 port
 
 ## Product Use case samples
 
-### [Money transfer workflow](src/main/java/io/iworkflow/workflow/money/transfer)
-TODO add more documentation
+### [Money transfer workflow/SAGA Patten](src/main/java/io/iworkflow/workflow/money/transfer)
+This example shows how to transfer money from one account to another account.
+The transfer involves multiple steps. When any step fails, the whole transfer is canceled with some compensation steps.
 
 ### [User sign-up/registry workflow](src/main/java/io/iworkflow/workflow/signup)
 
