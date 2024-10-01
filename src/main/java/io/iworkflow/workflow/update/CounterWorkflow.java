@@ -39,7 +39,10 @@ public class CounterWorkflow implements ObjectWorkflow {
             dataAttributesLockingKeys = {DA_COUNT}
     )
     public int inc(Context context, Persistence persistence, Communication communication) {
-        int count = persistence.getDataAttribute(DA_COUNT, Integer.class);
+        Integer count = persistence.getDataAttribute(DA_COUNT, Integer.class);
+        if (count == null) {
+            count = 0;
+        }
         count++;
         persistence.setDataAttribute(DA_COUNT, count);
         return count;
