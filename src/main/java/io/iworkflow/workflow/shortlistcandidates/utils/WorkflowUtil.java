@@ -1,10 +1,8 @@
 package io.iworkflow.workflow.shortlistcandidates.utils;
 
 import io.iworkflow.core.Client;
-import io.iworkflow.core.ClientSideException;
-import io.iworkflow.gen.models.ErrorSubStatus;
+import io.iworkflow.core.exceptions.WorkflowAlreadyStartedException;
 import io.iworkflow.workflow.shortlistcandidates.EmployerOptInWorkflow;
-
 
 public class WorkflowUtil {
     public static String buildEmployerOptInWorkflowId(final String employerId) {
@@ -25,11 +23,8 @@ public class WorkflowUtil {
 
         try {
             return client.invokeRPC(rpcStub::isOptedIn);
-        } catch (final ClientSideException e) {
-            if (e.getErrorSubStatus() == ErrorSubStatus.WORKFLOW_NOT_EXISTS_SUB_STATUS) {
-                return false;
-            }
-            throw new RuntimeException(String.format("isOptedIn failed with workflow %s", workflowId), e);
+        } catch (final WorkflowAlreadyStartedException e) {
+            return false;
         }
     }
 }

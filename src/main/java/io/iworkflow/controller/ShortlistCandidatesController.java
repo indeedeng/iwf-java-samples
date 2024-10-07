@@ -1,8 +1,8 @@
 package io.iworkflow.controller;
 
 import io.iworkflow.core.Client;
-import io.iworkflow.core.ClientSideException;
-import io.iworkflow.gen.models.ErrorSubStatus;
+import io.iworkflow.core.exceptions.NoRunningWorkflowException;
+import io.iworkflow.core.exceptions.WorkflowAlreadyStartedException;
 import io.iworkflow.workflow.shortlistcandidates.EmployerOptInWorkflow;
 import io.iworkflow.workflow.shortlistcandidates.ShortlistWorkflow;
 import io.iworkflow.workflow.shortlistcandidates.model.ImmutableEmployerOptInInput;
@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.Map;
-
 
 @Controller
 @RequestMapping("/shortlist_candidates")
@@ -42,11 +41,8 @@ public class ShortlistCandidatesController {
         try {
             // The timeout is set to 0, indicating that the workflow will never time out
             client.startWorkflow(EmployerOptInWorkflow.class, workflowId, 0, input);
-        } catch (final ClientSideException e) {
-            if (e.getErrorSubStatus() == ErrorSubStatus.WORKFLOW_ALREADY_STARTED_SUB_STATUS) {
-                return ResponseEntity.ok(String.format("Employer %s has already opted in", employerId));
-            }
-            throw new RuntimeException(String.format("optIn failed with workflow %s", workflowId), e);
+        } catch (final WorkflowAlreadyStartedException e) {
+            return ResponseEntity.ok(String.format("Employer %s has already opted in", employerId));
         }
 
         return ResponseEntity.ok(String.format("Started workflowId: %s", workflowId));
@@ -66,11 +62,8 @@ public class ShortlistCandidatesController {
         );
         try {
             client.invokeRPC(rpcStub::optOut);
-        } catch (final ClientSideException e) {
-            if (e.getErrorSubStatus() == ErrorSubStatus.WORKFLOW_NOT_EXISTS_SUB_STATUS) {
-                return ResponseEntity.ok(String.format("Employer %s is not in the opt-in status", employerId));
-            }
-            throw new RuntimeException(String.format("optOut failed with workflow %s", workflowId), e);
+        } catch (final NoRunningWorkflowException e) {
+            return ResponseEntity.ok(String.format("Employer %s is not in the opt-in status", employerId));
         }
 
         return ResponseEntity.ok(String.format("Employer %s has opted out", employerId));
@@ -109,11 +102,8 @@ public class ShortlistCandidatesController {
         try {
             // Set the timeout to 8 minutes because there is a 5-minute window before sending the email
             client.startWorkflow(ShortlistWorkflow.class, workflowId, 8 * 3600, input);
-        } catch (final ClientSideException e) {
-            if (e.getErrorSubStatus() == ErrorSubStatus.WORKFLOW_ALREADY_STARTED_SUB_STATUS) {
-                return ResponseEntity.ok(String.format("Already running workflowId: %s", workflowId));
-            }
-            throw new RuntimeException(String.format("Failed to start the workflow %s", workflowId), e);
+        } catch (final WorkflowAlreadyStartedException e) {
+            return ResponseEntity.ok(String.format("Already running workflowId: %s", workflowId));
         }
 
         return ResponseEntity.ok(String.format("Started workflowId: %s", workflowId));
@@ -130,11 +120,8 @@ public class ShortlistCandidatesController {
 
         try {
             client.signalWorkflow(ShortlistWorkflow.class, workflowId, ShortlistWorkflow.SIGNAL_REVOKE_SHORTLIST, null);
-        } catch (final ClientSideException e) {
-            if (e.getErrorSubStatus() == ErrorSubStatus.WORKFLOW_NOT_EXISTS_SUB_STATUS) {
-                return ResponseEntity.ok(String.format("No running workflow to revoke for %s", employerId + "-" + candidateId));
-            }
-            throw new RuntimeException(String.format("revokeShortlist failed with workflow %s", workflowId), e);
+        } catch (final NoRunningWorkflowException e) {
+            return ResponseEntity.ok(String.format("No running workflow to revoke for %s", employerId + "-" + candidateId));
         }
 
         return ResponseEntity.ok(String.format("Revoked shortlist for %s", employerId + "-" + candidateId));
@@ -155,12 +142,8 @@ public class ShortlistCandidatesController {
         Long timestamp;
         try {
             timestamp = client.invokeRPC(rpcStub::getEmailSentTimestamp);
-        } catch (final ClientSideException e) {
-            if (e.getErrorSubStatus() == ErrorSubStatus.WORKFLOW_NOT_EXISTS_SUB_STATUS) {
-                return ResponseEntity.notFound().build();
-            } else {
-                throw new RuntimeException(String.format("getEmailSentTimestamp failed with workflow %s", workflowId), e);
-            }
+        } catch (final NoRunningWorkflowException e) {
+            return ResponseEntity.notFound().build();
         }
         return ResponseEntity.ok(timestamp);
     }
