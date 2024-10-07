@@ -30,7 +30,7 @@ dependencies {
     implementation "org.springframework.boot:spring-boot-starter-test"
     implementation "javax.validation:validation-api:2.0.1.Final"
 
-    implementation "io.iworkflow:iwf-java-sdk:2.5.1"
+    implementation "io.iworkflow:iwf-java-sdk:2.6.0"
 
     // openapi
     implementation "org.openapitools:jackson-databind-nullable:0.2.1"

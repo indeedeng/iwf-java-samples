@@ -1,10 +1,8 @@
 package io.iworkflow.controller;
 
 import io.iworkflow.core.Client;
-import io.iworkflow.core.ClientSideException;
 import io.iworkflow.core.WorkflowUncompletedException;
-import io.iworkflow.gen.models.ErrorSubStatus;
-import io.iworkflow.workflow.microservices.OrchestrationWorkflow;
+import io.iworkflow.core.exceptions.LongPollTimeoutException;
 import io.iworkflow.workflow.money.transfer.ImmutableTransferRequest;
 import io.iworkflow.workflow.money.transfer.MoneyTransferWorkflow;
 import io.iworkflow.workflow.money.transfer.TransferRequest;
@@ -45,7 +43,7 @@ public class MoneyTransferWorkflowController {
             client.startWorkflow(MoneyTransferWorkflow.class, workflowId, 3600, request);
             String message = client.getSimpleWorkflowResultWithWait(String.class, workflowId);
             return ResponseEntity.ok(message);
-        } catch (ClientSideException | WorkflowUncompletedException e) {
+        } catch (LongPollTimeoutException | WorkflowUncompletedException e) {
             throw e;
         } catch (Exception e) {
             return ResponseEntity.ok("failed " + e.getMessage());

@@ -1,8 +1,7 @@
 package io.iworkflow.controller;
 
 import io.iworkflow.core.Client;
-import io.iworkflow.core.ClientSideException;
-import io.iworkflow.gen.models.ErrorSubStatus;
+import io.iworkflow.core.exceptions.WorkflowAlreadyStartedException;
 import io.iworkflow.workflow.microservices.ImmutableSignupForm;
 import io.iworkflow.workflow.signup.UserSignupWorkflow;
 import org.springframework.http.ResponseEntity;
@@ -36,10 +35,7 @@ public class SignupWorkflowController {
                     .lastName("Test")
                     .build();
             client.startWorkflow(UserSignupWorkflow.class, username, 3600, form);
-        } catch (ClientSideException e) {
-            if (e.getErrorSubStatus() != ErrorSubStatus.WORKFLOW_ALREADY_STARTED_SUB_STATUS) {
-                throw e;
-            }
+        } catch (WorkflowAlreadyStartedException e) {
             return ResponseEntity.ok("username already started registry");
         }
         return ResponseEntity.ok("success");
