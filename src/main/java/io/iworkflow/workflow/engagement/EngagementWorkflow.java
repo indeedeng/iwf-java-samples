@@ -24,7 +24,7 @@ import io.iworkflow.core.persistence.SearchAttributeDef;
 import io.iworkflow.gen.models.ChannelRequestStatus;
 import io.iworkflow.gen.models.RetryPolicy;
 import io.iworkflow.gen.models.SearchAttributeValueType;
-import io.iworkflow.gen.models.WorkflowStateOptions;
+import io.iworkflow.core.WorkflowStateOptions;
 import io.iworkflow.workflow.MyDependencyService;
 import io.iworkflow.workflow.engagement.model.EngagementDescription;
 import io.iworkflow.workflow.engagement.model.EngagementInput;
@@ -56,8 +56,7 @@ public class EngagementWorkflow implements ObjectWorkflow {
                 StateDef.startingState(new InitState()),
                 StateDef.nonStartingState(new ProcessTimeoutState(myService)),
                 StateDef.nonStartingState(new ReminderState(myService)),
-                StateDef.nonStartingState(new NotifyExternalSystemState(myService))
-        );
+                StateDef.nonStartingState(new NotifyExternalSystemState(myService)));
     }
 
     @Override
@@ -68,16 +67,14 @@ public class EngagementWorkflow implements ObjectWorkflow {
                 SearchAttributeDef.create(SearchAttributeValueType.KEYWORD, SA_KEY_STATUS),
                 SearchAttributeDef.create(SearchAttributeValueType.INT, SA_KEY_LAST_UPDATE_TIMESTAMP),
 
-                DataAttributeDef.create(String.class, DA_KEY_NOTES)
-        );
+                DataAttributeDef.create(String.class, DA_KEY_NOTES));
     }
 
     @Override
     public List<CommunicationMethodDef> getCommunicationSchema() {
         return Arrays.asList(
                 SignalChannelDef.create(Void.class, SIGNAL_NAME_OPT_OUT_REMINDER),
-                InternalChannelDef.create(Void.class, INTERNAL_CHANNEL_COMPLETE_PROCESS)
-        );
+                InternalChannelDef.create(Void.class, INTERNAL_CHANNEL_COMPLETE_PROCESS));
     }
 
     @RPC
@@ -90,8 +87,7 @@ public class EngagementWorkflow implements ObjectWorkflow {
         persistence.setSearchAttributeKeyword(SA_KEY_STATUS, Status.DECLINED.name());
         persistence.setSearchAttributeInt64(SA_KEY_LAST_UPDATE_TIMESTAMP, System.currentTimeMillis());
         communication.triggerStateMovements(
-                StateMovement.create(NotifyExternalSystemState.class, Status.DECLINED)
-        );
+                StateMovement.create(NotifyExternalSystemState.class, Status.DECLINED));
 
         String currentNotes = persistence.getDataAttribute(DA_KEY_NOTES, String.class);
         persistence.setDataAttribute(DA_KEY_NOTES, currentNotes + ";" + notes);
@@ -101,7 +97,8 @@ public class EngagementWorkflow implements ObjectWorkflow {
     public void accept(Context context, String notes, Persistence persistence, Communication communication) {
         final String currentStatus = persistence.getSearchAttributeKeyword(SA_KEY_STATUS);
         if (!currentStatus.equals(Status.INITIATED.name()) && !currentStatus.equals(Status.DECLINED.name())) {
-            throw new IllegalArgumentException("can only accept in INITIATED or DECLINED status, current is " + currentStatus);
+            throw new IllegalArgumentException(
+                    "can only accept in INITIATED or DECLINED status, current is " + currentStatus);
         }
 
         persistence.setSearchAttributeKeyword(SA_KEY_STATUS, Status.ACCEPTED.name());
@@ -146,7 +143,8 @@ class InitState implements WorkflowState<EngagementInput> {
     }
 
     @Override
-    public StateDecision execute(final Context context, final EngagementInput input, final CommandResults commandResults, final Persistence persistence, final Communication communication) {
+    public StateDecision execute(final Context context, final EngagementInput input,
+            final CommandResults commandResults, final Persistence persistence, final Communication communication) {
         persistence.setSearchAttributeKeyword(SA_KEY_EMPLOYER_ID, input.getEmployerId());
         persistence.setSearchAttributeKeyword(SA_KEY_JOB_SEEKER_ID, input.getJobSeekerId());
         persistence.setSearchAttributeKeyword(SA_KEY_STATUS, Status.INITIATED.name());
@@ -157,8 +155,7 @@ class InitState implements WorkflowState<EngagementInput> {
         return StateDecision.multiNextStates(
                 StateMovement.create(ProcessTimeoutState.class),
                 StateMovement.create(ReminderState.class),
-                StateMovement.create(NotifyExternalSystemState.class, Status.INITIATED)
-        );
+                StateMovement.create(NotifyExternalSystemState.class, Status.INITIATED));
     }
 }
 
@@ -184,7 +181,8 @@ class ProcessTimeoutState implements WorkflowState<Void> {
     }
 
     @Override
-    public StateDecision execute(Context context, Void input, CommandResults commandResults, Persistence persistence, Communication communication) {
+    public StateDecision execute(Context context, Void input, CommandResults commandResults, Persistence persistence,
+            Communication communication) {
         final String currentStatus = persistence.getSearchAttributeKeyword(SA_KEY_STATUS);
         final String employerId = persistence.getSearchAttributeKeyword(SA_KEY_EMPLOYER_ID);
         final String jobSeekerId = persistence.getSearchAttributeKeyword(SA_KEY_JOB_SEEKER_ID);
@@ -193,7 +191,8 @@ class ProcessTimeoutState implements WorkflowState<Void> {
         if (currentStatus.equals(Status.ACCEPTED.name())) {
             status = "ACCEPTED";
         }
-        this.myService.updateExternalSystem("notify engagement from employer " + employerId + " to jobSeeker " + jobSeekerId + " for status: " + status);
+        this.myService.updateExternalSystem("notify engagement from employer " + employerId + " to jobSeeker "
+                + jobSeekerId + " for status: " + status);
 
         return StateDecision.forceCompleteWorkflow("done");
     }
@@ -213,7 +212,8 @@ class ReminderState implements WorkflowState<Void> {
     }
 
     @Override
-    public CommandRequest waitUntil(final Context context, final Void input, final Persistence persistence, final Communication communication) {
+    public CommandRequest waitUntil(final Context context, final Void input, final Persistence persistence,
+            final Communication communication) {
         return CommandRequest.forAnyCommandCompleted(
                 TimerCommand.createByDuration(Duration.ofSeconds(5)), // 24 hours in real world, 5 seconds for demo
                 SignalCommand.create(EngagementWorkflow.SIGNAL_NAME_OPT_OUT_REMINDER) // user can choose to opt out
@@ -221,7 +221,8 @@ class ReminderState implements WorkflowState<Void> {
     }
 
     @Override
-    public StateDecision execute(final Context context, final Void input, final CommandResults commandResults, final Persistence persistence, final Communication communication) {
+    public StateDecision execute(final Context context, final Void input, final CommandResults commandResults,
+            final Persistence persistence, final Communication communication) {
         final String currentStatus = persistence.getSearchAttributeKeyword(SA_KEY_STATUS);
         if (!currentStatus.equals(Status.INITIATED.name())) {
             return StateDecision.deadEnd();
@@ -257,28 +258,31 @@ class NotifyExternalSystemState implements WorkflowState<Status> {
     }
 
     @Override
-    public StateDecision execute(final Context context, final Status status, final CommandResults commandResults, final Persistence persistence, final Communication communication) {
+    public StateDecision execute(final Context context, final Status status, final CommandResults commandResults,
+            final Persistence persistence, final Communication communication) {
         final String employerId = persistence.getSearchAttributeKeyword(SA_KEY_EMPLOYER_ID);
         final String jobSeekerId = persistence.getSearchAttributeKeyword(SA_KEY_JOB_SEEKER_ID);
         // Note that this API will fail for a few times until success
-        this.myService.updateExternalSystem("notify engagement from employer " + employerId + " to jobSeeker " + jobSeekerId + " for status: " + status.name());
+        this.myService.updateExternalSystem("notify engagement from employer " + employerId + " to jobSeeker "
+                + jobSeekerId + " for status: " + status.name());
         return StateDecision.deadEnd();
     }
 
     /**
-     * By default, all state execution will retry infinitely (until workflow timeout).
-     * This may not work for some dependency as we may want to retry for only a certain times
+     * By default, all state execution will retry infinitely (until workflow
+     * timeout).
+     * This may not work for some dependency as we may want to retry for only a
+     * certain times
      */
     @Override
     public WorkflowStateOptions getStateOptions() {
         return new WorkflowStateOptions()
-                .executeApiRetryPolicy(
+                .setExecuteApiRetryPolicy(
                         new RetryPolicy()
                                 .backoffCoefficient(2f)
                                 .maximumAttempts(100)
                                 .maximumAttemptsDurationSeconds(3600)
                                 .initialIntervalSeconds(3)
-                                .maximumIntervalSeconds(60)
-                );
+                                .maximumIntervalSeconds(60));
     }
 }

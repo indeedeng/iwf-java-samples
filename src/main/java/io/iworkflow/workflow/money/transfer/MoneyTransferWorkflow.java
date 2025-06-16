@@ -5,12 +5,11 @@ import io.iworkflow.core.ObjectWorkflow;
 import io.iworkflow.core.StateDecision;
 import io.iworkflow.core.StateDef;
 import io.iworkflow.core.WorkflowState;
-import io.iworkflow.core.WorkflowStateOptionsExtension;
 import io.iworkflow.core.command.CommandResults;
 import io.iworkflow.core.communication.Communication;
 import io.iworkflow.core.persistence.Persistence;
 import io.iworkflow.gen.models.RetryPolicy;
-import io.iworkflow.gen.models.WorkflowStateOptions;
+import io.iworkflow.core.WorkflowStateOptions;
 import io.iworkflow.workflow.MyDependencyService;
 import org.springframework.stereotype.Component;
 
@@ -34,8 +33,7 @@ public class MoneyTransferWorkflow implements ObjectWorkflow {
                 StateDef.nonStartingState(new DebitState(myService)),
                 StateDef.nonStartingState(new CreateCreditMemoState(myService)),
                 StateDef.nonStartingState(new CreditState(myService)),
-                StateDef.nonStartingState(new CompensateState(myService))
-        );
+                StateDef.nonStartingState(new CompensateState(myService)));
     }
 }
 
@@ -53,7 +51,8 @@ class VerifyState implements WorkflowState<TransferRequest> {
     }
 
     @Override
-    public StateDecision execute(final Context context, final TransferRequest request, final CommandResults commandResults, Persistence persistence, final Communication communication) {
+    public StateDecision execute(final Context context, final TransferRequest request,
+            final CommandResults commandResults, Persistence persistence, final Communication communication) {
         boolean hasSufficientFunds = myService.checkBalance(request.getFromAccountId(), request.getAmount());
         if (!hasSufficientFunds) {
             StateDecision.forceCompleteWorkflow("insufficient funds");
@@ -75,23 +74,24 @@ class CreateDebitMemoState implements WorkflowState<TransferRequest> {
     }
 
     @Override
-    public StateDecision execute(final Context context, final TransferRequest request, final CommandResults commandResults, Persistence persistence, final Communication communication) {
+    public StateDecision execute(final Context context, final TransferRequest request,
+            final CommandResults commandResults, Persistence persistence, final Communication communication) {
         myService.createDebitMemo(request.getFromAccountId(), request.getAmount(), request.getNotes());
         // uncomment to test the error case
         // if (true) {
-        //     throw new RuntimeException("test error case");
+        // throw new RuntimeException("test error case");
         // }
         return StateDecision.singleNextState(DebitState.class, request);
     }
 
     @Override
     public WorkflowStateOptions getStateOptions() {
-        return new WorkflowStateOptionsExtension()
-                .setProceedOnExecuteFailure(CompensateState.class)
-                .executeApiRetryPolicy(new RetryPolicy()
+        return new WorkflowStateOptions()
+                .setProceedToStateWhenExecuteRetryExhausted(CompensateState.class)
+                .setExecuteApiRetryPolicy(new RetryPolicy()
                         .maximumAttemptsDurationSeconds(3600));
         // NOTE: for demo purposes, setting this to 3 seconds
-        //.maximumAttemptsDurationSeconds(3));
+        // .maximumAttemptsDurationSeconds(3));
     }
 }
 
@@ -108,17 +108,20 @@ class DebitState implements WorkflowState<TransferRequest> {
     }
 
     @Override
-    public StateDecision execute(final Context context, final TransferRequest request, final CommandResults commandResults, Persistence persistence, final Communication communication) {
+    public StateDecision execute(final Context context, final TransferRequest request,
+            final CommandResults commandResults, Persistence persistence, final Communication communication) {
         myService.debit(request.getFromAccountId(), request.getAmount());
         return StateDecision.singleNextState(CreateCreditMemoState.class, request);
     }
 
     @Override
     public WorkflowStateOptions getStateOptions() {
-        return new WorkflowStateOptionsExtension()
-                .setProceedOnExecuteFailure(CompensateState.class)
-                .executeApiRetryPolicy(new RetryPolicy()
+        return new WorkflowStateOptions()
+                .setProceedToStateWhenExecuteRetryExhausted(CompensateState.class)
+                .setExecuteApiRetryPolicy(new RetryPolicy()
                         .maximumAttemptsDurationSeconds(3600));
+        // NOTE: for demo purposes, setting this to 3 seconds
+        // .maximumAttemptsDurationSeconds(3));
     }
 }
 
@@ -135,17 +138,20 @@ class CreateCreditMemoState implements WorkflowState<TransferRequest> {
     }
 
     @Override
-    public StateDecision execute(final Context context, final TransferRequest request, final CommandResults commandResults, Persistence persistence, final Communication communication) {
+    public StateDecision execute(final Context context, final TransferRequest request,
+            final CommandResults commandResults, Persistence persistence, final Communication communication) {
         myService.createCreditMemo(request.getToAccountId(), request.getAmount(), request.getNotes());
         return StateDecision.singleNextState(CreditState.class, request);
     }
 
     @Override
     public WorkflowStateOptions getStateOptions() {
-        return new WorkflowStateOptionsExtension()
-                .setProceedOnExecuteFailure(CompensateState.class)
-                .executeApiRetryPolicy(new RetryPolicy()
+        return new WorkflowStateOptions()
+                .setProceedToStateWhenExecuteRetryExhausted(CompensateState.class)
+                .setExecuteApiRetryPolicy(new RetryPolicy()
                         .maximumAttemptsDurationSeconds(3600));
+        // NOTE: for demo purposes, setting this to 3 seconds
+        // .maximumAttemptsDurationSeconds(3));
     }
 }
 
@@ -162,19 +168,22 @@ class CreditState implements WorkflowState<TransferRequest> {
     }
 
     @Override
-    public StateDecision execute(final Context context, final TransferRequest request, final CommandResults commandResults, Persistence persistence, final Communication communication) {
+    public StateDecision execute(final Context context, final TransferRequest request,
+            final CommandResults commandResults, Persistence persistence, final Communication communication) {
         myService.credit(request.getToAccountId(), request.getAmount());
         return StateDecision.gracefulCompleteWorkflow(
-                String.format("transfer is done %d from %s to %s", request.getAmount(), request.getFromAccountId(), request.getToAccountId())
-        );
+                String.format("transfer is done %d from %s to %s", request.getAmount(), request.getFromAccountId(),
+                        request.getToAccountId()));
     }
 
     @Override
     public WorkflowStateOptions getStateOptions() {
-        return new WorkflowStateOptionsExtension()
-                .setProceedOnExecuteFailure(CompensateState.class)
-                .executeApiRetryPolicy(new RetryPolicy()
+        return new WorkflowStateOptions()
+                .setProceedToStateWhenExecuteRetryExhausted(CompensateState.class)
+                .setExecuteApiRetryPolicy(new RetryPolicy()
                         .maximumAttemptsDurationSeconds(3600));
+        // NOTE: for demo purposes, setting this to 3 seconds
+        // .maximumAttemptsDurationSeconds(3));
     }
 }
 
@@ -191,8 +200,10 @@ class CompensateState implements WorkflowState<TransferRequest> {
     }
 
     @Override
-    public StateDecision execute(final Context context, final TransferRequest request, final CommandResults commandResults, Persistence persistence, final Communication communication) {
-        // NOTE: to improve, we can use iWF data attributes to track whether each step has been attempted to execute
+    public StateDecision execute(final Context context, final TransferRequest request,
+            final CommandResults commandResults, Persistence persistence, final Communication communication) {
+        // NOTE: to improve, we can use iWF data attributes to track whether each step
+        // has been attempted to execute
         // and check a flag to see if we should undo it or not
 
         myService.undoCredit(request.getToAccountId(), request.getAmount());
@@ -206,8 +217,7 @@ class CompensateState implements WorkflowState<TransferRequest> {
     @Override
     public WorkflowStateOptions getStateOptions() {
         return new WorkflowStateOptions()
-                .executeApiRetryPolicy(new RetryPolicy()
+                .setExecuteApiRetryPolicy(new RetryPolicy()
                         .maximumAttemptsDurationSeconds(86400));
     }
 }
-
