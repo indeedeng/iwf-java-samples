@@ -16,7 +16,7 @@ import io.iworkflow.core.persistence.PersistenceOptions;
 import io.iworkflow.core.persistence.SearchAttributeDef;
 import io.iworkflow.gen.models.RetryPolicy;
 import io.iworkflow.gen.models.SearchAttributeValueType;
-import io.iworkflow.gen.models.WorkflowStateOptions;
+import io.iworkflow.core.WorkflowStateOptions;
 import io.iworkflow.workflow.MyDependencyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -39,8 +39,7 @@ public class JobPostWorkflow implements ObjectWorkflow {
                 SearchAttributeDef.create(SearchAttributeValueType.TEXT, SA_KEY_TITLE),
                 SearchAttributeDef.create(SearchAttributeValueType.INT, SA_KEY_LAST_UPDATE_TIMESTAMP),
 
-                DataAttributeDef.create(String.class, DA_KEY_NOTES)
-        );
+                DataAttributeDef.create(String.class, DA_KEY_NOTES));
     }
 
     @Override
@@ -51,8 +50,7 @@ public class JobPostWorkflow implements ObjectWorkflow {
     @Override
     public List<StateDef> getWorkflowStates() {
         return Arrays.asList(
-                StateDef.nonStartingState(new ExternalUpdateState(service))
-        );
+                StateDef.nonStartingState(new ExternalUpdateState(service)));
     }
 
     @RPC
@@ -84,8 +82,7 @@ public class JobPostWorkflow implements ObjectWorkflow {
             persistence.setDataAttribute(DA_KEY_NOTES, input.getNotes().get());
         }
         communication.triggerStateMovements(
-                StateMovement.create(ExternalUpdateState.class)
-        );
+                StateMovement.create(ExternalUpdateState.class));
     }
 
     public static final String SA_KEY_JOB_DESCRIPTION = "JobDescription";
@@ -109,25 +106,27 @@ class ExternalUpdateState implements WorkflowState<Void> {
     }
 
     @Override
-    public StateDecision execute(final Context context, final Void input, final CommandResults commandResults, final Persistence persistence, final Communication communication) {
+    public StateDecision execute(final Context context, final Void input, final CommandResults commandResults,
+            final Persistence persistence, final Communication communication) {
         service.updateExternalSystem("this is an update to external service");
         return StateDecision.deadEnd();
     }
 
     /**
-     * By default, all state execution will retry infinitely (until workflow timeout).
-     * This may not work for some dependency as we may want to retry for only a certain times
+     * By default, all state execution will retry infinitely (until workflow
+     * timeout).
+     * This may not work for some dependency as we may want to retry for only a
+     * certain times
      */
     @Override
     public WorkflowStateOptions getStateOptions() {
         return new WorkflowStateOptions()
-                .executeApiRetryPolicy(
+                .setExecuteApiRetryPolicy(
                         new RetryPolicy()
                                 .backoffCoefficient(2f)
                                 .maximumAttempts(100)
                                 .maximumAttemptsDurationSeconds(3600)
                                 .initialIntervalSeconds(3)
-                                .maximumIntervalSeconds(60)
-                );
+                                .maximumIntervalSeconds(60));
     }
 }
