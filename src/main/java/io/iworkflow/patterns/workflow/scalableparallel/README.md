@@ -13,8 +13,6 @@ We can consider the Parent Workflow to be a controller and the Child Workflow a 
 
 Because of request can be rejected, the request will be first sent to RequestReceiverWorkflow as "buffer". The request workflow will then keep on retrying to send to parent if being rejected.
 
-The design pattern was initially discussed in this [doc](https://docs.google.com/document/d/1GfNcCRfUjPk8DPb_OENdgPJ6g7vEqXsQ0tZ7CQILLzc).
-
 ### Key Components
 
 NOTE: Term `request` and `task` are used in a specific context. Request consist of multiple tasks. For example, in a line-by-line CSV processing scenario, `request` would be seen as a file to process and `task` would be a single line that is processed by a ChildWorkflow.
