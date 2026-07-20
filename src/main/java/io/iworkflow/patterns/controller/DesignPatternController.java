@@ -253,6 +253,14 @@ class DesignPatternController {
         final JobSeekerData data = ImmutableJobSeekerData.builder()
                         .id(1)
                         .build();
+
+        // publish channel directly from external client
+        client.publishToChannel(OrderFlow.class, runId, CANCEL_ORDER_CH, reason)     
+
+        // alternatively, using channel within RPC
+        final OrderFlow rpcStub = client.newRpcStub(OrderFlow.class, runId);
+        client.invokeRPC(rpcStub::cancelOrder, reason)
+        
         iwfClient.startWorkflow(
                 WaitForStateCompletionWorkflow.class,
                 workflowId,
