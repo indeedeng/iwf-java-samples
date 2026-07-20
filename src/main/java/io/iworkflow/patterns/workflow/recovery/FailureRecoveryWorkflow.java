@@ -45,58 +45,22 @@ public class FailureRecoveryWorkflow implements ObjectWorkflow {
     }
 }
 
-class UpdateItemQuantityState implements WorkflowState<FailureRecoveryWorkflowInput> {
-    private final DatabaseConnection database;
-
-    UpdateItemQuantityState(DatabaseConnection database) {
-        this.database = database;
-    }
+class UpdateItemQuantityStep implements Step<MyInput> {
 
     @Override
-    public WorkflowStateOptions getStateOptions() {
-        // The `WorkflowStateOptions` gives greater control over how the state will behave. If a state will fail indefinitely,
-        // the only way to recover from that state is to set the retry policy to tell iWF how to handle a state that will not
-        // succeed.
-        //
-        // The main controls used for workflow recovery are the `ProceedToStateWhenExecuteRetryExhausted` and
-        // `ExecuteApiRetryPolicy`. `ProceedToStateWhenExecuteRetryExhausted` tells iWF which state to move to when the current
-        // state has failed. `ExecuteApiRetryPolicy` tells iWF how long or how many times a state is able to continue to
-        // retrying when it has failed.
-        return new WorkflowStateOptions()
-                // `ProceedToStateWhenExecuteRetryExhausted` controls the state that the workflow will transition to if this
-                // state should fail more times than allowed by the configuration. By default, a state can retry until the
-                // workflow timeout has passed. To ensure that a state can fail and move to a recovery state, there needs to be
-                // a retry policy that tells iWF when to allow the state to fail.
-                .setProceedToStateWhenExecuteRetryExhausted(UpdateQuantityRecoveryState.class)
-                // `ExecuteApiRetryPolicy` tells iWF for how long or how many times a state is allowed to fail and retry. Here,
-                // a new retry policy is set with its maximum number of attempts set to 1, so this state will only ever run
-                // once. If `MaximumAttempts` is set to 0, the state can retry as many times as can fit within the workflow
-                // timeout. The retry policy also includes `MaximumAttemptsDurationSeconds`, which will allow the state to retry
-                // as many times as can fit in the number of seconds set. Like `MaximumAttempts`, if
-                // `MaximumAttemptsDurationSeconds` is set to 0, the state can retry until the workflow timeout is reached. If
-                // both `MaximumAttempts` and `MaximumAttemptsDurationSeconds` are set, whichever threshold is reached first
-                // will determine when the state has finished retrying.
-                .setExecuteApiRetryPolicy(new RetryPolicy()
+    public StepOptions getStateOptions() {
+        return new StepOptions()
+                .setExecuteApiRetryPolicy(
+                    new RetryPolicy()
+                        .totalTimeout(Duration.OfSeconds(60)
                         .maximumAttempts(5));
     }
 
     @Override
-    public Class<FailureRecoveryWorkflowInput> getInputType() {
-        return FailureRecoveryWorkflowInput.class;
-    }
-
-    @Override
-    public StateDecision execute(
+    public StepDecision execute(
             Context context,
-            FailureRecoveryWorkflowInput input,
-            CommandResults commandResults,
-            Persistence persistence,
-            Communication communication) {
-        persistence.setDataAttribute(FailureRecoveryWorkflow.WORKFLOW_INPUT_KEY, input);
-
-        database.reduceQuantity(input.getItemName(), input.getRequestedQuantity());
-
-        return StateDecision.singleNextState(ChargeForItemsState.class, input.getRequestedQuantity());
+            MyInput input,) {
+       ....
     }
 }
 
