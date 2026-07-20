@@ -17,6 +17,28 @@ import io.iworkflow.gen.models.RetryPolicy;
 import java.util.List;
 import java.util.Random;
 
+public class OrderFlow implements Flow {
+    public static final Attribute ATTR_ORDER_STATUS = Attribute.define("status", String.class)
+
+    @Override
+    public List<PersistenceFieldDef> getPersistenceSchema() {
+        return List.of(ATTR_ORDER_STATUS);
+    }
+    ...
+}
+...
+class PlaceOrderStep implements Step<Order> {    
+    @Override
+    public StepDecision execute(Context context, Order order)) {
+        String currentStatus = ATTR_ORDER_STATUS.get(context);
+        if ...{...}
+        ATTR_ORDER_STATUS.set(context, "order_placed");
+        return StepDecision.goto(CollectPaymentStep, order)
+    }
+}
+
+
+
 public class FailureRecoveryWorkflow implements ObjectWorkflow {
     public static final String WORKFLOW_INPUT_KEY = "workflow-input-data-attribute-key";
 
@@ -45,22 +67,56 @@ public class FailureRecoveryWorkflow implements ObjectWorkflow {
     }
 }
 
-class UpdateItemQuantityStep implements Step<MyInput> {
 
+
+
+class FanoutStep implements Step<Integer> {    
     @Override
-    public StepOptions getStateOptions() {
-        return new StepOptions()
-                .setExecuteApiRetryPolicy(
-                    new RetryPolicy()
-                        .totalTimeout(Duration.OfSeconds(60)
-                        .maximumAttempts(5));
+    public StepDecision execute( Context context, int concurrency)) {
+        
+        List<StepMovement> steps = new ArrayList<>();
+        for (int i = 0; i < CONCURRENCY; i++) {
+            steps.add(StepMovement.create(ParallelThreadStartStep.class, data.get(i)));
+        }
+        // Start all the concurrent steps as durable "multi-threading"
+        return StateDecision.gotoMulti(steps);
     }
+}
 
+...
+
+class ParallelThreadCompletionStep implements Step<Output> {    
     @Override
-    public StepDecision execute(
-            Context context,
-            MyInput input,) {
-       ....
+    public StepDecision execute( Context context, int concurrency)) {
+        
+       CompletionChannel.publish(context, CompletionChannel, Output.data)
+       // just complete the thread 
+       return StateDecision.deadEnd()
+    }
+}
+
+class FaninStep implements Step<Integer> {
+    @Override
+    public Condition waitFor(Context context, int concurrency){
+        return Condition.AllOf(CompletionChannel.of(concurrency))
+    }
+    
+    @Override
+    public StepDecision execute( Context context, int concurrency)) {
+        List<String> outputs = ConditionResults.get(context, CompletionChannel)
+        ...
+    }
+}
+
+class PlaceOrderStep implements Step<Order> {    
+    @Override
+    public StepDecision execute( Context context, Order order)) {
+        ...
+        if(success){
+            return StepDecision.goto(CollectPaymentStep, order);
+        }else{
+            return StepDecision.goto(StartOverStep, order)
+        }
     }
 }
 
