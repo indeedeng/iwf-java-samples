@@ -78,42 +78,27 @@ public class ResettableTimerWorkflow implements ObjectWorkflow {
     }
 }
 
-/**
- * Represents the initial state in the workflow that will await either timer firing or message that resets the timer
- * <p>This state can be executed multiple times {@code ResettableTimerState} and with each execution a new timer will started.</p>
- * <p>When the timer fires, the workflow will move to the {@code TimerExpiredState}.</p>
- */
-class ResettableTimerState implements WorkflowState<Void> {
 
-    // This is the timer duration that should be adjusted per use case
+class ResettableTimerStep implements WorkflowState<Void> {
+
     public static final Duration TIMER_DURATION = Duration.ofMinutes(5);
 
     @Override
-    public Class<Void> getInputType() {
-        return null;
-    }
-
-    @Override
-    public CommandRequest waitUntil(Context context, Void input, Persistence persistence, Communication communication) {
-        return CommandRequest.forAnyCommandCompleted(
-                TimerCommand.createByDuration(TIMER_DURATION),
-                InternalChannelCommand.create(ResettableTimerWorkflow.RESET_TIMER_CHANNEL)
+    public Condition waitFor(Context context, Void input) {
+        return Condition.forAny(
+                Timer.byDuration(TIMER_DURATION),
+                TimerResetChannel.atleast(1)
         );
     }
 
     @Override
-    public StateDecision execute(Context context,
-            Void input,
-            CommandResults commandResults,
-            Persistence persistence,
-            Communication communication) {
-        TimerCommandResult timer = commandResults.getAllTimerCommandResults().get(0);
-        if (timer.getTimerStatus() == TimerStatus.FIRED) {
-            // timer fired -> move to the end state
-            return StateDecision.singleNextState(TimerExpiredState.class);
+    public StepDecision execute(Context context, Void input) {
+        if ConditionResults.isTimerfired(context){
+            return StepDecision.goto(HandleUserInactiveStep.class)
         }
-        // the only other reason to execute is receiving a message in RESET_TIMER_CHANNEL; then loop back to the initial state
-        return StateDecision.singleNextState(ResettableTimerState.class);
+        // Otherwise it got a timer reset signal meaning an active
+        // operation. Go back to wait for again
+        return StepDecision.goto(ResettableTimerStep,class);
     }
 }
 
