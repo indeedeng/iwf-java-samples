@@ -13,12 +13,65 @@ import io.iworkflow.gen.models.PersistenceLoadingType;
 import java.util.Collections;
 import java.util.List;
 
-/**
- * A singleton workflow that acts as storage. Limited to 4MB storage.
- */
-public class StorageWorkflow implements ObjectWorkflow {
-    private static final String DA_STORE = "Store";
+import io.iworkflow.core.persistence.*;
 
+public class OrderWorkflow implements ObjectWorkflow {
+    public static final String STATUS = "status";
+
+    @Override
+    public List<PersistenceFieldDef> getPersistenceSchema() {
+        return Arrays.asList(
+            DataAttributeDef.create(
+                String.class,
+                STATUS,
+                DbAttributeSync.of(
+                    /* dataSource   */ MyDataSources.ORDERS,
+                    /* table        */ "orders",          
+                    /* pk column    */ "id",
+                    /* locator      */ (workflowId, persistence) ->
+                        new CellLocation(workflowId, "status_col"))));
+    }
+
+    @Override
+    public List<StateDef> getWorkflowStates() {
+        return Arrays.asList(StateDef.startingState(new DecideState()));
+    }
+}
+
+
+public class OrderFlow implements Flow {
+
+    // value is the cancel reason 
+    public static final Channel CANCEL_ORDER_CH = Channel.define("cancel_order", String.class);
+    public static final Attribute ATTR_ORDER_STATUS = Attribute.define(
+        "status", String.class,
+        DbAttributeSync.of(
+            MyDataSources.ORDERS, 
+            "orders",             // table
+            "id",                 // primary key column
+            // row locator
+            (runId, context) ->
+                new CellLocation(runId, "status_col") // using runId as orderId
+        ));
+    );
+    public static final Attribute ATTR_CANCEL_REASON = Attribute.define("reason", String.class);
+    
+    @Override
+    public PersistenceSchema getPersistenceSchema() {
+        return PersistenceSchema.of(
+            list.of( ATTR_ORDER_STATUS, ATTR_CANCEL_REASON)
+            list.of( CANCEL_ORDER_CH),
+        );
+    }
+    
+    @RPC
+    public String cancelOrder(Context context, String reason){
+        ATTR_ORDER_STATUS.set(context, "canceled")
+        ATTR_CANCEL_REASON.set(context, reason)
+        // update attribute and also publish message to the channel, atomically 
+        CancelOrderCh.publish(context, reason)
+    }
+    
     /**
      * Static getter to fetch the singleton workflow id based on the staging level.
      * @return the storage workflow id
@@ -79,6 +132,10 @@ public class StorageWorkflow implements ObjectWorkflow {
         final Storage storage = persistence.getDataAttribute(DA_STORE, Storage.class);
         return storage == null ? null : storage.getItem(itemKey);
     }
+
+
+    
+
 
     /**
      * Remove an item from the storage. Locking the storage data attribute because we are reading and then setting the data
