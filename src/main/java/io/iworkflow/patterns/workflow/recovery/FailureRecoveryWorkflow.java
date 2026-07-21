@@ -18,9 +18,20 @@ import java.util.List;
 import java.util.Random;
 
 public class OrderFlow implements Flow {
-    public static final Attribute ATTR_UPDATES_COUNT = Attribute.define("status", Integer.class)
-    public static final Attribute ATTR_ORDER_STATUS = Attribute.define("status", String.class)
-
+    public static final Attribute ATTR_UPDATES_COUNT = Attribute.define(
+        "updates", Integer.class,
+        new IndexConfig(
+            INDEX_TYPE_INT,
+            "order_update_count" // the indexed field registered in search engine like ElasticSearch
+        )
+    )
+    public static final Attribute ATTR_ORDER_STATUS = Attribute.define(
+        "status", String.class, 
+        new IndexConfig(
+            INDEX_TYPE_KEYWORD,
+            "order_status" // the indexed field registered in search engine like ElasticSearch
+        )
+    )
                                                                     
     @Override
     public List<PersistenceFieldDef> getPersistenceSchema() {
@@ -33,6 +44,22 @@ public class OrderFlow implements Flow {
     public void incUpdates(Context context, Void ignore) {
         int current = ATTR_UPDATES_COUNT.get(context);
         ATTR_UPDATES_COUNT.set(context, current+1)
+    }
+}
+
+class PlaceOrderStep implements Step<Order> {    
+    @Override
+    public StepDecision execute(Context context, Order order)) {
+
+        runIds = client.searchRuns("order_status = \"completed\" AND order_update_count > 10")
+
+        client.publishToStream(STREAM_LLM, tokens) 
+
+        subscription = client.subscribeStream(STREAM_LLM, resumeToken)    
+
+        // reset the run back to the time that order is started
+        client.forkRun(runId, OrderStartedStep.class)
+        
     }
 }
 
