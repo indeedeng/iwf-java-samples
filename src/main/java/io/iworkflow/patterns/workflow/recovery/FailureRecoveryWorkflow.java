@@ -18,15 +18,59 @@ import java.util.List;
 import java.util.Random;
 
 public class OrderFlow implements Flow {
+    public static final Attribute ATTR_UPDATES_COUNT = Attribute.define("status", Integer.class)
     public static final Attribute ATTR_ORDER_STATUS = Attribute.define("status", String.class)
 
+                                                                    
     @Override
     public List<PersistenceFieldDef> getPersistenceSchema() {
-        return List.of(ATTR_ORDER_STATUS);
+        return List.of(ATTR_ORDER_STATUS, ATTR_UPDATES_COUNT);
     }
-    ...
+    
+    @RPC(
+            lockAttributes = {ATTR_UPDATES_COUNT}
+    )
+    public void incUpdates(Context context, Void ignore) {
+        int current = ATTR_UPDATES_COUNT.get(context);
+        ATTR_UPDATES_COUNT.set(context, current+1)
+    }
 }
-...
+
+class PlaceOrderStep implements Step<Order> {    
+    @Override
+    public StepDecision execute(Context context, Order order)) {
+        // ... call some API that could fail
+    }
+    @Override
+    public StepOptions getStepOptions() {
+        return new StepOptions()
+                .lockingAttributes(ATTR_UPDATES_COUNT)
+    }
+}
+
+class DebitStep implements Step<Order> {    
+    @Override
+    public StepDecision execute(Context context, Order order)) {
+        // ... call some API that could fail
+    }
+    @Override
+    public StepOptions getStepOptions() {
+        return new StepOptions()
+                .proceedToStepOnRetryExhasuted(FailureRecoveryStep.class)
+                .executeRetryPolicy(new RetryPolicy()
+                    .maximumAttempts(5)); 
+    }
+}
+
+class FailureRecoveryStep mplements Step<Order> {    
+    @Override
+    public StepDecision execute(Context context, Order order)) {
+        String error = context.getFromStepError();
+        String stepType = context.getFromStepType();    
+        ...    
+    }
+}
+
 class PlaceOrderStep implements Step<Order> {    
     @Override
     public StepDecision execute(Context context, Order order)) {
@@ -35,8 +79,25 @@ class PlaceOrderStep implements Step<Order> {
         ATTR_ORDER_STATUS.set(context, "order_placed");
         return StepDecision.goto(CollectPaymentStep, order)
     }
+
+    @Override
+    public StepOptions getStepOptions() {
+        return new WorkflowStateOptions()
+                .setProceedToStepOnRetryExhasuted(FailureRecoveryStep.class)
+                .setExecuteRetryPolicy(
+                    new RetryPolicy()
+                    .maximumAttempts(5)); 
+    }
 }
 
+class FailureRecoveryStep mplements Step<Order> {    
+    @Override
+    public StepDecision execute(Context context, Order order)) {
+        String error = context.getFromStepError();
+        String stepType = context.getFromStepType();    
+        ...    
+    }
+}
 
 
 public class FailureRecoveryWorkflow implements ObjectWorkflow {
